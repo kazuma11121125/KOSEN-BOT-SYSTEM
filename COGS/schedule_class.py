@@ -8,70 +8,72 @@ from discord import ui
 
 
 class Questionnaire(ui.Modal, title="教科入力"):
-    def __init__(self,mode, class_name):
+    def __init__(self, mode, class_name):
         super().__init__()
         self.mode = mode
         self.class_name = class_name
         self.schedule_manager = ClassScheduleManager()
-         
-        self.one = ui.TextInput(label='一限目', style=discord.TextStyle.short,min_length=1)
-        self.two = ui.TextInput(label='二限目', style=discord.TextStyle.short,min_length=1)
-        self.three = ui.TextInput(label='三限目', style=discord.TextStyle.short,min_length=1)
-        self.four = ui.TextInput(label='四限目', style=discord.TextStyle.short,min_length=1)
-        self.add_item(self.one)
-        self.add_item(self.two)
-        self.add_item(self.three)
-        self.add_item(self.four)
-        
+
+        self.inputs = [
+            ui.TextInput(label='一限目', style=discord.TextStyle.short, min_length=1),
+            ui.TextInput(label='二限目', style=discord.TextStyle.short, min_length=1),
+            ui.TextInput(label='三限目', style=discord.TextStyle.short, min_length=1),
+            ui.TextInput(label='四限目', style=discord.TextStyle.short, min_length=1),
+        ]
+
+        for input_item in self.inputs:
+            self.add_item(input_item)
+
     async def on_submit(self, interaction: discord.Interaction):
-        self.data = self.schedule_manager.load_data()
-        one = str(self.one)
-        two = str(self.two)
-        three = str(self.three)
-        four = str(self.four)
-        if self.class_name in self.data["classes"]:
-            base = self.data["classes"][self.class_name]
-            new_list = [one,two,three,four]
+        data = self.schedule_manager.load_data()
+        one, two, three, four = [str(input_item) for input_item in self.inputs]
+
+        if self.class_name in data["classes"]:
+            base = data["classes"][self.class_name]
+            new_list = [one, two, three, four]
             base["Basic"][self.mode] = new_list
+
             await self.schedule_manager.add_class_schedule(self.class_name, base)
-            embed = discord.Embed(color=0x2ecc71,title=f"{self.mode} 講義日程")
-            cont = 1
-            for i in base["Basic"][self.mode]:
-                embed.add_field(name=f"{cont}限目",value=i,inline=False)
-                cont = cont+1
+
+            embed = discord.Embed(color=0x2ecc71, title=f"{self.mode} 講義日程")
+            for cont, schedule_item in enumerate(base["Basic"][self.mode], start=1):
+                embed.add_field(name=f"{cont}限目", value=schedule_item, inline=False)
+
             await interaction.response.send_message(embed=embed)
 
-class homework_add(ui.Modal,title="課題追加"):
-    def __init__(self,classname):
+class HomeworkAdd(ui.Modal, title="課題追加"):
+    def __init__(self, classname):
         super().__init__()
         self.classname = classname
         self.submission_manager = SubmissionManager()
-        self.date = ui.TextInput(label="日付設定(例 2023-12-12) 指定記述方式以外で入力しないで",style=discord.TextStyle.short)
-        self.name = ui.TextInput(label="詳細",style=discord.TextStyle.paragraph)
+        self.date = ui.TextInput(label="日付設定(例 2023-12-12) 指定記述方式以外で入力しないで", style=discord.TextStyle.short)
+        self.name = ui.TextInput(label="詳細", style=discord.TextStyle.paragraph)
         self.add_item(self.date)
         self.add_item(self.name)
 
     async def on_submit(self, interaction: discord.Interaction):
-        self.data = self.submission_manager.load_data()
+        data = self.submission_manager.load_data()
         date = str(self.date)
         name = str(self.name)
-        if self.classname in self.data["submissions"]:
+
+        if self.classname in data["submissions"]:
             try:
-                base = self.data["submissions"][self.classname][date]
-            except:
+                base = data["submissions"][self.classname][date]
+            except KeyError:
                 base = []
+
             base.append(name)
-            await self.submission_manager.add_submission(self.classname,date,base)
+            await self.submission_manager.add_submission(self.classname, date, base)
             
             await interaction.response.send_message("add homework ok")
-    
-class discord_button_model(discord.ui.View):
+
+class DiscordButtonModel(discord.ui.View):
     def __init__(self, class_name):
-        self.clasname = class_name
+        self.classname = class_name
         super().__init__()
 
-    async def switching(self, interaction:discord.Interaction, button, mode):
-        await interaction.response.send_modal(Questionnaire(mode, self.clasname))
+    async def switching(self, interaction: discord.Interaction, button, mode):
+        await interaction.response.send_modal(Questionnaire(mode, self.classname))
 
     @discord.ui.button(label="月曜日")
     async def mon(self, button, interaction):
@@ -108,7 +110,7 @@ class schedule_class(commands.Cog):
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
             embed = discord.Embed(color=0x2ecc71,title="基本設定")
-            await interaction.response.send_message(embed=embed, view=discord_button_model(classname))
+            await interaction.response.send_message(embed=embed, view=DiscordButtonModel(classname))
         else:
             await interaction.response.send_message("ユーザー情報がみつかりませんでした。")
 
@@ -162,7 +164,7 @@ class schedule_class(commands.Cog):
         """宿題の追加"""
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
-            await interaction.response.send_modal(homework_add(classname))
+            await interaction.response.send_modal(HomeworkAdd(classname))
 
     @app_commands.command()
     async def homework_view(self,interaction:discord.Interaction):

@@ -3,10 +3,9 @@ import sys
 import discord
 import datetime
 import os
-
+import json
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-TOKEN = "MTE4NDEwOTgzNjkwNDk3MjMzOQ.Gt4-6V._5ApauAWoAbcyfUDfRtTcEuqOfAC9DcTA9s4g4"
 
 COGS = [
     "COGS.schedule_class",
@@ -41,5 +40,8 @@ class MyBot(commands.Bot):
 bot = MyBot(intents=discord.Intents.all(), prefix='k!')
 
 if __name__ == '__main__':
+    with open("token.json", 'r', encoding='utf-8') as file:
+        t = json.load(file)
+        TOKEN = t["TOKEN"]
     bot.run(token=TOKEN)
 
