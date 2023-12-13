@@ -30,16 +30,21 @@ class Questionnaire(ui.Modal, title="教科入力"):
 
         if self.class_name in data["classes"]:
             base = data["classes"][self.class_name]
-            new_list = [one, two, three, four]
-            base["Basic"][self.mode] = new_list
+        else:
+            # If self.class_name is not present, create a new entry
+            base = {"Basic": {self.mode: []}}
+            data["classes"][self.class_name] = base
 
-            await self.schedule_manager.add_class_schedule(self.class_name, base)
+        new_list = [one, two, three, four]
+        base["Basic"][self.mode] = new_list
 
-            embed = discord.Embed(color=0x2ecc71, title=f"{self.mode} 講義日程")
-            for cont, schedule_item in enumerate(base["Basic"][self.mode], start=1):
-                embed.add_field(name=f"{cont}限目", value=schedule_item, inline=False)
+        await self.schedule_manager.add_class_schedule(self.class_name, base)
 
-            await interaction.response.send_message(embed=embed)
+        embed = discord.Embed(color=0x2ecc71, title=f"{self.mode} 講義日程")
+        for cont, schedule_item in enumerate(base["Basic"][self.mode], start=1):
+            embed.add_field(name=f"{cont}限目", value=schedule_item, inline=False)
+
+        await interaction.response.send_message(embed=embed)
 
 class HomeworkAdd(ui.Modal, title="課題追加"):
     def __init__(self, classname):
