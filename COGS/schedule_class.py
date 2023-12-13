@@ -66,11 +66,14 @@ class HomeworkAdd(ui.Modal, title="課題追加"):
                 base = data["submissions"][self.classname][date]
             except KeyError:
                 base = []
+        else:
+            base = {"submissions": {self.classname: []}}
+            data["submissions"][self.classname] = base
 
-            base.append(name)
-            await self.submission_manager.add_submission(self.classname, date, base)
+        base.append(name)
+        await self.submission_manager.add_submission(self.classname, date, base)
             
-            await interaction.response.send_message("add homework ok")
+        await interaction.response.send_message("add homework ok")
 
 class DiscordButtonModel(discord.ui.View):
     def __init__(self, class_name):
