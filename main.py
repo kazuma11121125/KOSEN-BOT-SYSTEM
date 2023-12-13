@@ -6,7 +6,7 @@ import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-TOKEN = "MTEwMTQ2NjIyOTgzNjg4MTkzMA.GhXmZz.KSYcRJG47XmVLBihaW1Tk4qW_MInpALYUiJIyQ"
+TOKEN = "MTE4NDEwOTgzNjkwNDk3MjMzOQ.Gt4-6V._5ApauAWoAbcyfUDfRtTcEuqOfAC9DcTA9s4g4"
 
 COGS = [
     "COGS.schedule_class",

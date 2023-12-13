@@ -18,8 +18,8 @@ class ClassuserSystem:
             return {"users": {}}
     
     async def check_user(self, id):
+        self.data = self.load_data()
         user_id = int(id)
-
         if str(user_id) in self.data["users"]:
             return self.data["users"][str(user_id)]
         else:
@@ -27,6 +27,7 @@ class ClassuserSystem:
 
         
     async def add_user(self,id,classname):
+        self.data = self.load_data()
         if not id in self.data["users"]:
             self.data["users"][id] = classname
             self.save_data()
@@ -35,6 +36,7 @@ class ClassuserSystem:
             return False
 
     async def del_user(self,id):
+        self.data = self.load_data()
         if id in self.data["users"]:
             self.data.pop(id)
             self.save_data()
@@ -51,9 +53,6 @@ class ClassScheduleManager:
         with open(self.filename, 'w', encoding='utf-8') as file:
             json.dump(self.data, file, ensure_ascii=False, indent=2)
 
-    def save_data(self):
-        with open(self.filename, 'w', encoding='utf-8') as file:
-            json.dump(self.data, file, ensure_ascii=False, indent=2)
     def load_data(self):
         try:
             with open(self.filename, 'r', encoding='utf-8') as file:
@@ -62,11 +61,13 @@ class ClassScheduleManager:
             return {"classes": {}}
 
     async def add_class_schedule(self, class_name, schedule):
+        self.data = self.load_data()
         self.data["classes"][class_name] = schedule
         self.save_data()
         return True
 
     async def update_class_schedule(self, class_name, date, updated_schedule):
+        self.data = self.load_data()
         if class_name in self.data["classes"]:
             # 日にちごとのスケジュールを更新する
             if date in self.data["classes"][class_name]:
@@ -79,6 +80,7 @@ class ClassScheduleManager:
             return False  # 指定されたクラスが存在しない場合
 
     async def view_class_schedule(self, class_name, date):
+        self.data = self.load_data()
         if class_name in self.data["classes"]:
             # 日にちに対応するスケジュールを取得する
             if date in self.data["classes"][class_name]:
@@ -92,6 +94,7 @@ class ClassScheduleManager:
                 return self.data["classes"][class_name].get("Basic", {}).get(day_of_week)
 
     async def edit_class_schedule(self, class_name, date, edited_schedule):
+        self.data = self.load_data()
         if class_name in self.data["classes"]:
             self.data["classes"][class_name][date] = edited_schedule
             self.save_data()
@@ -116,6 +119,7 @@ class SubmissionManager:
             return {"submissions": {}}
 
     async def add_submission(self, class_name, deadline, assignments):
+        self.data = self.load_data()
         if class_name not in self.data["submissions"]:
             self.data["submissions"][class_name] = {}
         self.data["submissions"][class_name][deadline] = assignments
@@ -135,6 +139,7 @@ class SubmissionManager:
     #     return False
 
     async def get_upcoming_submissions(self, class_name):
+        self.data = self.load_data()
         today = datetime.now().strftime('%Y-%m-%d')
         upcoming_submissions = {}
         if class_name in self.data["submissions"]:
@@ -144,6 +149,7 @@ class SubmissionManager:
         return upcoming_submissions
 
     async def count_remaining_days(self, deadline):
+        self.data = self.load_data()
         today = datetime.now().strftime('%Y-%m-%d')
         remaining_days = (datetime.strptime(deadline, '%Y-%m-%d') - datetime.strptime(today, '%Y-%m-%d')).days
         return remaining_days
