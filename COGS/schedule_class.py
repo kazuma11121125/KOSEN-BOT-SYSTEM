@@ -199,7 +199,7 @@ class schedule_class(commands.Cog):
         embed.add_field(name="`/target_check [target_date]`",value="```target_date:指定日 (例2023-12-12) 指定した記述方式以外を使用しないこと(半角)```",inline=False)
         embed.add_field(name="`/homework_add`",value="```宿題追加```",inline=False)
         embed.add_field(name="`/homework_view`",value="```宿題確認```",inline=False)
-        embed.add_field(name="このBotについて",value="このBotはkazuma1112 M2303によって無償開発-無償運用されています。\n開発支援金はこちらまで\nPayPay ID:kazuma11112\nKyash:ID kazuma1112\nサーバー維持費-開発費として使用します。\n開発支援 [S-Server Developers](https://sdev.aknet.tech/)",inline=False)
+        embed.add_field(name="このBotについて",value="このBotはkazuma1112 M2303によって無償開発されています。\n開発支援金はこちらまで\nPayPay ID:kazuma11112\nKyash:ID kazuma1112\n開発費として使用します。\n開発支援-サーバー提供 [S-Server Developers](https://sdev.aknet.tech/)",inline=False)
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
