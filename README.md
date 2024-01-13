@@ -1,4 +1,4 @@
-## KOSEN-BOT-SYSTEM　DISCORD BOT
+## NIT OITA 23s KOSEN-BOT-SYSTEM　DISCORD BOT
 オープンソースコード 
 
 ## 初期設定    
