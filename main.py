@@ -8,7 +8,8 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 COGS = [
-    "COGS.schedule_class",
+    "COGS.schedule",
+    "COGS.homework",
     "jishaku"
 ]
 
@@ -35,8 +36,6 @@ class MyBot(commands.Bot):
         print(f"導入数 {(len(self.guilds))}")
         print("-----------------------")
 
-
-
 bot = MyBot(intents=discord.Intents.all(), prefix='k!')
 
 if __name__ == '__main__':
@@ -44,4 +43,3 @@ if __name__ == '__main__':
         t = json.load(file)
         TOKEN = t["TOKEN"]
     bot.run(token=TOKEN)
-
