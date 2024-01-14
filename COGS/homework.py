@@ -2,8 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from student_schedule_manager import ClassuserSystem,SubmissionManager
-from homework_class import HomeworkAdd
-
+from homework_class import HomeworkAdd,Homework_view
 class HomeworkClass(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
@@ -21,18 +20,8 @@ class HomeworkClass(commands.Cog):
     async def homework_view(self,interaction:discord.Interaction):
         """宿題確認"""
         classname = await self.user_info.check_user(interaction.user.id)
-        embed = discord.Embed(color=0x2ecc71,title=f"課題状況")
         if classname:  
-            upcoming_submissions = await self.submission_manager.get_upcoming_submissions(classname)
-            for deadline, assignments in upcoming_submissions.items():
-                remaining_days = await self.submission_manager.count_remaining_days(deadline)
-                ass = ""
-                for txt  in assignments:
-                    ass += txt
-                    ass += "\n" 
-                    
-                embed.add_field(name=f"{deadline} 残り:{remaining_days}日",value=f"```{ass}```\n\n",inline=False)
-                
+            embed = await Homework_view.make_embed(classname)
             await interaction.response.send_message(embed=embed,ephemeral=True)    
 
 async def setup(bot):

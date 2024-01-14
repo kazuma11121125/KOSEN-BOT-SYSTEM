@@ -30,4 +30,22 @@ class HomeworkAdd(ui.Modal, title="課題追加"):
         base.append(name)
         await self.submission_manager.add_submission(self.classname, date, base)
 
-        await interaction.response.send_message("add homework ok")
+        await interaction.response.send_message("add homework ok",ephemeral=True)
+        
+class Homework_view:
+    def __init__(self):
+        self.submission_manager = SubmissionManager()
+    
+    async def make_embed(self,classname):
+        embed = discord.Embed(color=0x2ecc71,title=f"課題状況")
+        upcoming_submissions = await self.submission_manager.get_upcoming_submissions(classname)
+        for deadline, assignments in upcoming_submissions.items():
+            remaining_days = await self.submission_manager.count_remaining_days(deadline)
+            ass = ""
+            for txt  in assignments:
+                ass += txt
+                ass += "\n" 
+                    
+            embed.add_field(name=f"{deadline} 残り:{remaining_days}日",value=f"```{ass}```\n\n",inline=False)
+            
+        return embed

@@ -1,7 +1,7 @@
 import discord
 from discord import ui
 from student_schedule_manager import ClassScheduleManager,ClassuserSystem
-
+from homework_class import Homework_view,HomeworkAdd
 class Questionnaire(ui.Modal, title="教科入力"):
     def __init__(self, mode, class_name):
         super().__init__()
@@ -100,11 +100,29 @@ class ed_class(ui.Modal,title="授業変更"):
         else:
             await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)    
 
+class view_class(ui.Modal,title="授業確認"):
+    def __init__(self,classname):
+        super().__init__()
+        self.classname = classname
+        self.schedule_manager = ClassScheduleManager()
+        self.date = ui.TextInput(label="日付設定 (2024-01-13形式で記入)", style=discord.TextStyle.short)
+        self.add_item(self.date)
+        
+    async def on_submit(self,interaction: discord.Interaction):
+        date = str(self.date)
+        result = await self.schedule_manager.view_class_schedule(self.classname, date)
+        cont = 1
+        embed = discord.Embed(color=0x2ecc71,title=f"{date} 講義日程")
+        for i in result:
+            embed.add_field(name=f"{cont}限目",value=i,inline=False)
+            cont = cont + 1
+        await interaction.response.send_message(embed=embed,ephemeral=True)
+        
 class DiscordButtonModel_disbord(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # Set a longer timeout or None for no timeout
         self.user_info = ClassuserSystem()
-
+        self.homework = Homework_view()
     # Define a simple View that persists between bot restarts
     # In order for a view to persist between restarts it needs to meet the following conditions:
     # 1) The timeout of the View has to be set to None
@@ -121,6 +139,13 @@ class DiscordButtonModel_disbord(discord.ui.View):
                 await interaction.response.send_message(embed=embed, view=DiscordButtonModel(classname),ephemeral=True)
             if mode == "change":
                await interaction.response.send_modal(ed_class(classname))
+            if mode == "classview":
+                await interaction.response.send_modal(view_class(classname))
+            if mode == "homework_add":
+                await interaction.response.send_modal(HomeworkAdd(classname))
+            if mode == "homework_view":
+                embed = await self.homework.make_embed(classname)
+                await interaction.response.send_message(embed=embed,ephemeral=True)
         else:
             await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)
 
@@ -128,6 +153,19 @@ class DiscordButtonModel_disbord(discord.ui.View):
     async def mon(self, button, interaction):
         await self.switching(button, interaction, "Base")
 
-    @discord.ui.button(label="授業変更適用",style=discord.ButtonStyle.blurple,custom_id="change")
+    @discord.ui.button(label="授業変更適用",style=discord.ButtonStyle.red,custom_id="change")
     async def change(self,button,interaction):
         await self.switching(button,interaction,"change")
+        
+    @discord.ui.button(label="授業確認",style=discord.ButtonStyle.red,custom_id="classview")
+    async def class_view(self,button,interaction):
+        await self.switching(button,interaction,"classview")
+        
+    @discord.ui.button(label="宿題追加",style=discord.ButtonStyle.green,custom_id="homework_add")
+    async def homework_add(self,button,interaction):
+        await self.switching(button,interaction,"homework_add")
+        
+    @discord.ui.button(label="宿題確認",style=discord.ButtonStyle.green,custom_id="homework_view")
+    async def homework_view(self,button,interaction):
+        await self.switching(button,interaction,"homework_view")
+        

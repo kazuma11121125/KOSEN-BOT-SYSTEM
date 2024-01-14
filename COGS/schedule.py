@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 from datetime import datetime,timedelta
 from discord import app_commands
 from student_schedule_manager import ClassScheduleManager,SubmissionManager,ClassuserSystem
-from discord_schedule_system_class import ed_class,DiscordButtonModel,DiscordButtonModel_disbord
+from discord_schedule_system_class import ed_class,DiscordButtonModel,view_class
 
 class schedule_class(commands.Cog):
     def __init__(self, bot):
@@ -52,13 +52,7 @@ class schedule_class(commands.Cog):
         """特定日の授業確認"""
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
-            result = await self.schedule_manager.view_class_schedule(classname, date)
-            cont = 1
-            embed = discord.Embed(color=0x2ecc71,title=f"{date} 講義日程")
-            for i in result:
-                embed.add_field(name=f"{cont}限目",value=i,inline=False)
-                cont = cont+1
-            await interaction.response.send_message(embed=embed,ephemeral=True)
+            await interaction.response.send_modal(view_class(classname))
         else:
             await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
 
