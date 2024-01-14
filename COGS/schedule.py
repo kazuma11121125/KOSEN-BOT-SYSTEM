@@ -48,7 +48,7 @@ class schedule_class(commands.Cog):
             await interaction.response.send_message("既に追加済みです",ephemeral=True)
 
     @app_commands.command()
-    async def target_check(self,interaction:discord.Interaction,date:str):
+    async def target_check(self,interaction:discord.Interaction):
         """特定日の授業確認"""
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
