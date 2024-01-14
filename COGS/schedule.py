@@ -117,9 +117,6 @@ class schedule_class(commands.Cog):
         except Exception as e:
             await self.bot.get_channel(id).send(f"An error occurred: {type(e).__name__} - {e}")        
 
-    @commands.command()
-    async def setup_base(self,ctx):
-        await ctx.send("ダッシュボードβ",view = DiscordButtonModel_disbord())
 async def setup(bot):
     await bot.add_cog(schedule_class(bot))
     print("[SystemLog] スケジュール Cog：ロード完了")

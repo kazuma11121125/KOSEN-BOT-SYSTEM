@@ -89,11 +89,12 @@ class ed_class(ui.Modal,title="授業変更"):
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
             base = await self.schedule_manager.view_class_schedule(classname,target_date)
+            period = int(period)
             if period < 5:
                 period = period -1
                 base[period] = value
                 await self.schedule_manager.edit_class_schedule(classname, target_date, base)
-                await interaction.response.send_message("OK")
+                await interaction.response.send_message("OK",ephemeral=True)
             else:
                 await interaction.response.send_message(f"ん？？？\nそんな授業数ないお{period}",ephemeral=True)
         else:

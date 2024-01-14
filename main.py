@@ -4,6 +4,7 @@ import discord
 import datetime
 import os
 import json
+from discord_schedule_system_class import DiscordButtonModel_disbord
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -35,6 +36,7 @@ class MyBot(commands.Bot):
 
         print(f"導入数 {(len(self.guilds))}")
         print("-----------------------")
+        await bot.get_channel(1195565220408610828).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
 
 bot = MyBot(intents=discord.Intents.all(), prefix='k!')
 
