@@ -3,14 +3,15 @@ from discord.ext import commands, tasks
 from datetime import datetime,timedelta
 from discord import app_commands
 from student_schedule_manager import ClassScheduleManager,SubmissionManager,ClassuserSystem
-from discord_schedule_system_class import ed_class,DiscordButtonModel,view_class
-
+from discord_schedule_system_class import DiscordButtonModel
+from schedule_specification import Discord_Selevt_View,WeekDatesCalculator
 class schedule_class(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.schedule_manager = ClassScheduleManager()
         self.submission_manager = SubmissionManager()
         self.user_info = ClassuserSystem()
+        
         self.send_dict = {
             "1M":[1184742396492263454],
             "1S":[1184742458781864007],
@@ -34,7 +35,8 @@ class schedule_class(commands.Cog):
         """授業指定変更"""
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
-            await interaction.response.send_modal(ed_class(classname))
+            num = await WeekDatesCalculator.get_number_of_weeks()
+            await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"edit_schedule",classname),ephemeral=True)#Base
         else:
             await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
 
@@ -52,7 +54,8 @@ class schedule_class(commands.Cog):
         """特定日の授業確認"""
         classname = await self.user_info.check_user(interaction.user.id)
         if classname:
-            await interaction.response.send_modal(view_class(classname))
+            num = await WeekDatesCalculator.get_number_of_weeks()
+            await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"target_check",classname),ephemeral=True)
         else:
             await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
 

@@ -1,7 +1,7 @@
 import discord
 from discord import ui
 from student_schedule_manager import ClassScheduleManager,ClassuserSystem
-from homework_class import Homework_view,HomeworkAdd
+from homework_class import Homework_view
 class Questionnaire(ui.Modal, title="教科入力"):
     def __init__(self, mode, class_name):
         super().__init__()
@@ -70,18 +70,17 @@ class DiscordButtonModel(discord.ui.View):
         await self.switching(button, interaction, "Friday")
 
 class ed_class(ui.Modal,title="授業変更"):
-    def __init__(self,classname):
+    def __init__(self,classname,y_m_d):
         super().__init__()
         self.classname = classname
-        self.date = ui.TextInput(label="日付設定 (2024-01-13形式で記入)", style=discord.TextStyle.short)
+        self.y_m_d = y_m_d
         self.period = ui.TextInput(label="何限目 (整数数字のみ記入)", style=discord.TextStyle.short)
         self.value = ui.TextInput(label="授業名",style=discord.TextStyle.short)
-        self.add_item(self.date)
         self.add_item(self.period)
         self.add_item(self.value)
 
     async def on_submit(self, interaction: discord.Interaction):
-        target_date = str(self.date)
+        target_date = str(self.y_m_d)
         period = str(self.period)
         value = str(self.value)
         self.user_info = ClassuserSystem()
@@ -99,24 +98,6 @@ class ed_class(ui.Modal,title="授業変更"):
                 await interaction.response.send_message(f"ん？？？\nそんな授業数ないお{period}",ephemeral=True)
         else:
             await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)    
-
-class view_class(ui.Modal,title="授業確認"):
-    def __init__(self,classname):
-        super().__init__()
-        self.classname = classname
-        self.schedule_manager = ClassScheduleManager()
-        self.date = ui.TextInput(label="日付設定 (2024-01-13形式で記入)", style=discord.TextStyle.short)
-        self.add_item(self.date)
-        
-    async def on_submit(self,interaction: discord.Interaction):
-        date = str(self.date)
-        result = await self.schedule_manager.view_class_schedule(self.classname, date)
-        cont = 1
-        embed = discord.Embed(color=0x2ecc71,title=f"{date} 講義日程")
-        for i in result:
-            embed.add_field(name=f"{cont}限目",value=i,inline=False)
-            cont = cont + 1
-        await interaction.response.send_message(embed=embed,ephemeral=True)
         
 class DiscordButtonModel_disbord(discord.ui.View):
     def __init__(self):
@@ -132,17 +113,19 @@ class DiscordButtonModel_disbord(discord.ui.View):
     # For this example the custom_id is prefixed with the name of the bot.
     # Note that custom_ids can only be up to 100 characters long.
     async def switching(self, interaction: discord.Interaction, button, mode):
+        from schedule_specification import WeekDatesCalculator ,Discord_Selevt_View
         classname = await self.user_info.check_user(interaction.user.id)
+        num = await WeekDatesCalculator.get_number_of_weeks()
         if classname:
             if mode == "Base":
                 embed = discord.Embed(color=0x2ecc71,title="基本設定")
                 await interaction.response.send_message(embed=embed, view=DiscordButtonModel(classname),ephemeral=True)
             if mode == "change":
-               await interaction.response.send_modal(ed_class(classname))
+               await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"edit_schedule",classname),ephemeral=True)#Base
             if mode == "classview":
-                await interaction.response.send_modal(view_class(classname))
+                await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"target_check",classname),ephemeral=True)
             if mode == "homework_add":
-                await interaction.response.send_modal(HomeworkAdd(classname))
+               await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"homework_add",classname),ephemeral=True)
             if mode == "homework_view":
                 embed = await self.homework.make_embed(classname)
                 await interaction.response.send_message(embed=embed,ephemeral=True)
