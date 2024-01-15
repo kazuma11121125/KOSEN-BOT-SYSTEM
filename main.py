@@ -36,9 +36,9 @@ class MyBot(commands.Bot):
 
         print(f"導入数 {(len(self.guilds))}")
         print("-----------------------")
-        await bot.get_channel(1175352758904307792).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
+        await bot.get_channel(1195565220408610828).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
 
-bot = MyBot(intents=discord.Intents.all(), prefix='!k ')
+bot = MyBot(intents=discord.Intents.all(), prefix='k!')
 
 if __name__ == '__main__':
     with open("token.json", 'r', encoding='utf-8') as file:
