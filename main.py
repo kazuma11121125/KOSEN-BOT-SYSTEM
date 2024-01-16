@@ -37,7 +37,8 @@ class MyBot(commands.Bot):
         print(f"導入数 {(len(self.guilds))}")
         print("-----------------------")
         await bot.get_channel(1195565220408610828).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
-
+#1175352758904307792 test
+#1195565220408610828 honban
 bot = MyBot(intents=discord.Intents.all(), prefix='k!')
 
 if __name__ == '__main__':

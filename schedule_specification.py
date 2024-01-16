@@ -87,7 +87,7 @@ class main_Class_days:
             for i in result:
                 embed.add_field(name=f"{cont}限目", value=i, inline=False)
                 cont = cont + 1
-            await interaction.response.edit_message(embed=embed, ephemeral=True)
+            await interaction.response.edit_message(embed=embed)
 
         elif comannd_name == "homework_add":
             await interaction.response.send_modal(HomeworkAdd(classname, y_m_d))
