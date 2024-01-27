@@ -13,21 +13,14 @@ class HomeworkClass(commands.Cog):
     @app_commands.command()
     async def homework_add(self,interaction:discord.Interaction):
         """宿題の追加"""
-        classname = await self.user_info.check_user(interaction.user.id)
-        if classname:
-            num = await WeekDatesCalculator.get_number_of_weeks()
-            await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"homework_add",classname),ephemeral=True)
-        else:
-            await interaction.response.send_message("ユーザー情報がみつかりませんでした。")
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("クラスを選択してください",view=self.user_info.user_data_select(classname_list,"homework_add"),ephemeral=True)
+
     @app_commands.command()
     async def homework_view(self,interaction:discord.Interaction):
         """宿題確認"""
-        classname = await self.user_info.check_user(interaction.user.id)
-        if classname:  
-            embed = await Homework_view.make_embed(classname)
-            await interaction.response.send_message(embed=embed,ephemeral=True)
-        else:
-            await interaction.response.send_message("ユーザー情報がみつかりませんでした。")    
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("クラスを選択してください",view=self.user_info.user_data_select(classname_list,"homework_view"),ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(HomeworkClass(bot))

@@ -5,6 +5,7 @@ from discord import app_commands
 from student_schedule_manager import ClassScheduleManager,SubmissionManager,ClassuserSystem
 from discord_schedule_system_class import DiscordButtonModel
 from schedule_specification import Discord_Selevt_View,WeekDatesCalculator
+import asyncio
 class schedule_class(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -23,41 +24,46 @@ class schedule_class(commands.Cog):
     @app_commands.command()
     async def add_basic(self,interaction:discord.Interaction):
         """授業基本設定"""
-        classname = await self.user_info.check_user(interaction.user.id)
-        if classname:
-            embed = discord.Embed(color=0x2ecc71,title="基本設定")
-            await interaction.response.send_message(embed=embed, view=DiscordButtonModel(classname),ephemeral=True)
-        else:
-            await interaction.response.send_message("ユーザー情報がみつかりませんでした。")
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("クラスを選択してください",view=self.user_info.user_data_select(classname_list,"add_basic"),ephemeral=True)
 
     @app_commands.command()
     async def edit_schedule(self,interaction:discord.Interaction):
         """授業指定変更"""
-        classname = await self.user_info.check_user(interaction.user.id)
-        if classname:
-            num = await WeekDatesCalculator.get_number_of_weeks()
-            await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"edit_schedule",classname),ephemeral=True)#Base
-        else:
-            await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("クラスを選択してください",view=self.user_info.discord_user_select_View(classname_list,"edit_schedule"),ephemeral=True)
+
 
     @app_commands.command()
     async def user_add(self,interaction:discord.Interaction,classname:str):
-        """ユーザー情報追加"""
-        if not await self.user_info.check_user(interaction.user.id):
-            await self.user_info.add_user(interaction.user.id,classname)
+        """ユーザークラス情報追加"""
+        check = await self.user_info.add_user(interaction.user.id,classname)
+        if check:
             await interaction.response.send_message("Ok",ephemeral=True)
         else:
-            await interaction.response.send_message("既に追加済みです",ephemeral=True)
+            await interaction.response.send_message("既に追加済みです。",ephemeral=True)
+
+    @app_commands.command()
+    async def user_classname_del(self,interaction:discord.Interaction):
+        """ユーザークラス情報削除"""
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("削除するものを選択してください",view=self.user_info.discord_user_select_View(classname_list,"user_classname_del"),ephemeral=True)
+
+    @app_commands.command()
+    async def user_del(self,interaction:discord.Interaction):
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        if classname_list:
+            await self.user_info.del_user(interaction.user.id)
+            await interaction.response.send_message("OK",ephemeral=True)
+        else:
+            await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
 
     @app_commands.command()
     async def target_check(self,interaction:discord.Interaction):
         """特定日の授業確認"""
-        classname = await self.user_info.check_user(interaction.user.id)
-        if classname:
-            num = await WeekDatesCalculator.get_number_of_weeks()
-            await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"target_check",classname),ephemeral=True)
-        else:
-            await interaction.response.send_message("ユーザー情報が見つかりませんでした。",ephemeral=True)
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        await interaction.response.send_message("クラスを選択してください",view=self.user_info.discord_user_select_View(classname_list,"target_check"),ephemeral=True)
+
 
     @app_commands.command()
     async def help(self,interaction:discord.Interaction):
@@ -69,7 +75,7 @@ class schedule_class(commands.Cog):
         embed.add_field(name="`/target_check [target_date]`",value="```target_date:指定日 (例2023-12-12) 指定した記述方式以外を使用しないこと(半角)```",inline=False)
         embed.add_field(name="`/homework_add`",value="```宿題追加```",inline=False)
         embed.add_field(name="`/homework_view`",value="```宿題確認```",inline=False)
-        embed.add_field(name="このBotについて",value="このBotはkazuma1112 M2303によって無償開発されています。\n開発支援金はこちらまで\nPayPay ID:kazuma11112\nKyash:ID kazuma1112\n開発費として使用します。\n開発支援-サーバー提供 [S-Server Developers](https://sdev.aknet.tech/)",inline=False)
+        embed.add_field(name="このBotについて",value="このBotはkazuma1112 S-devによって開発されています。\n開発支援金はこちらまで\nPayPay ID:kazuma11112\nKyash:ID kazuma1112\n開発費として使用します。\n開発支援-サーバー提供 [S-Server Developers](https://sdev.aknet.tech/)",inline=False)
         await interaction.response.send_message(embed=embed,ephemeral=True)
 
     @tasks.loop(seconds=15)

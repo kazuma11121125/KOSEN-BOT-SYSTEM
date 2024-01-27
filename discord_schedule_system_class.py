@@ -114,21 +114,22 @@ class DiscordButtonModel_disbord(discord.ui.View):
     # Note that custom_ids can only be up to 100 characters long.
     async def switching(self, interaction: discord.Interaction, button, mode):
         from schedule_specification import WeekDatesCalculator ,Discord_Selevt_View
-        classname = await self.user_info.check_user(interaction.user.id)
+        classname_list = await self.user_info.check_user(interaction.user.id)
+        classname = await interaction.response.send_message("クラスを選択してください",view=self.user_info.user_data_select(classname_list),ephemeral=True)
         num = await WeekDatesCalculator.get_number_of_weeks()
-        if classname:
+        if classname_list:
             if mode == "Base":
                 embed = discord.Embed(color=0x2ecc71,title="基本設定")
-                await interaction.response.send_message(embed=embed, view=DiscordButtonModel(classname),ephemeral=True)
+                await interaction.response.edit_message(embed=embed, view=DiscordButtonModel(classname))
             if mode == "change":
-               await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"edit_schedule",classname),ephemeral=True)#Base
+               await interaction.response.edit_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"edit_schedule",classname))#Base
             if mode == "classview":
-                await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"target_check",classname),ephemeral=True)
+                await interaction.response.edit_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"target_check",classname))
             if mode == "homework_add":
-               await interaction.response.send_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"homework_add",classname),ephemeral=True)
+               await interaction.response.edit_message("第何周かを選択してください",view=Discord_Selevt_View(num,0,"homework_add",classname))
             if mode == "homework_view":
                 embed = await self.homework.make_embed(classname)
-                await interaction.response.send_message(embed=embed,ephemeral=True)
+                await interaction.response.edit_message(embed=embed)
         else:
             await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)
 
