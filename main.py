@@ -11,7 +11,8 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 COGS = [
     "COGS.schedule",
     "COGS.homework",
-    "jishaku"
+    "jishaku",
+    "COGS.youtube"
 ]
 
 class MyBot(commands.Bot):
