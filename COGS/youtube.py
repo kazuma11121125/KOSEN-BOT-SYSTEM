@@ -78,20 +78,32 @@ class MusicCog(commands.Cog):
             await ctx.send('Skipped. Bot disconnected.')
             
     @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
+    async def on_raw_reaction_add(self, payload):
+        # リアクションを追加したユーザーを取得
+        user = await self.bot.fetch_user(payload.user_id)
+        # ユーザーがボットかどうかを確認
         if user.bot:
             return
+        # リアクションが発生したチャンネルを取得
+        channel = self.bot.get_channel(payload.channel_id)
+        # ペイロードからメッセージIDを使用してメッセージを取得
+        message = await channel.fetch_message(payload.message_id)        
+        if message.guild.id == 1130796864741064714:
+            # ペイロードから絵文字を取得
+            emoji = payload.emoji.name
 
-        if reaction.message.guild.id == "1130796864741064714":
-            # リアクションの種類をチェック
-            if reaction.emoji == "👍" and "youtube.com" in reaction.message.content:#
-                # リアクションをつけたyoutube.comのメッセージに「👍」がついたら「🤔」をつける
-                await reaction.message.add_reaction("🤔")   
-                # ダウンロード関数の実行
-                url = reaction.message.content
+            # 絵文字が「👍」であり、メッセージの内容に「youtube.com」が含まれているか確認
+            if emoji == "👍" and "youtube.com" in message.content:
+                # 「🤔」リアクションを追加
+                await message.add_reaction("🤔")
+                # オーディオをダウンロード
+                url = message.content
                 await self.download_audio(url)
-                # ダウンロード完了のリアクションをつける
-                await reaction.message.add_reaction("✅")
+                #リアクション剥奪
+                await message.clear_reactions()
+                # 「✅」リアクションを追加
+                await message.add_reaction("✅")
+
 
 async def setup(bot):
     await bot.add_cog(MusicCog(bot))
