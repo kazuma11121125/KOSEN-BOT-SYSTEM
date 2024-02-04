@@ -65,8 +65,9 @@ class MusicCog(commands.Cog):
         await voice_channel.disconnect()
         await ctx.send('All MP3 files played. Bot disconnected.')
 
+
     @commands.command()
-    async def skip(self, ctx):
+    async def stop(self, ctx):
         # スキップ時に再生履歴をクリア
         self.played_history.clear()
 
@@ -75,7 +76,22 @@ class MusicCog(commands.Cog):
         if voice_channel:
             await voice_channel.disconnect()
             await ctx.send('Skipped. Bot disconnected.')
+            
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        if user.bot:
+            return
 
+        if reaction.message.guild.id == "1130796864741064714":
+            # リアクションの種類をチェック
+            if reaction.emoji == "👍" and "youtube.com" in reaction.message.content:#
+                # リアクションをつけたyoutube.comのメッセージに「👍」がついたら「🤔」をつける
+                await reaction.message.add_reaction("🤔")   
+                # ダウンロード関数の実行
+                url = reaction.message.content
+                await self.download_audio(url)
+                # ダウンロード完了のリアクションをつける
+                await reaction.message.add_reaction("✅")
 
 async def setup(bot):
     await bot.add_cog(MusicCog(bot))
