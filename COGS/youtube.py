@@ -93,7 +93,7 @@ class MusicCog(commands.Cog):
             emoji = payload.emoji.name
 
             # 絵文字が「👍」であり、メッセージの内容に「youtube.com」が含まれているか確認
-            if emoji == "👍" and "youtube.com" in message.content:
+            if emoji == "👍" and ("youtube.com" in message.content or "youtu.be" in message.content):
                 # 「🤔」リアクションを追加
                 await message.add_reaction("🤔")
                 # オーディオをダウンロード
