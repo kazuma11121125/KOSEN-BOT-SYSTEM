@@ -18,7 +18,7 @@ class schedule_class(commands.Cog):
             "1C":[1184753367289974794],
             "1E":[1184753468620152922]
         }
-        self.loop_start.start()
+        # self.loop_start.start()
         self.check = False
     @app_commands.command()
     async def add_basic(self,interaction:discord.Interaction):
