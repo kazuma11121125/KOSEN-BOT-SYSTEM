@@ -6,6 +6,33 @@ from student_schedule_manager import ClassScheduleManager,SubmissionManager,Clas
 from discord_schedule_system_class import DiscordButtonModel
 from schedule_specification import Discord_Selevt_View,WeekDatesCalculator
 class schedule_class(commands.Cog):
+    """
+    A class representing the schedule functionality of the bot.
+
+    Attributes:
+    - bot: The Discord bot instance.
+    - schedule_manager: An instance of the ClassScheduleManager class.
+    - submission_manager: An instance of the SubmissionManager class.
+    - user_info: An instance of the ClassuserSystem class.
+    - send_dict: A dictionary mapping class names to channel IDs.
+    - check: A boolean indicating whether the loop is running or not.
+    """
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.schedule_manager = ClassScheduleManager()
+        self.submission_manager = SubmissionManager()
+        self.user_info = ClassuserSystem()
+        
+        self.send_dict = {
+            "1M":[1184742396492263454],
+            "1S":[1184742458781864007],
+            "1C":[1184753367289974794],
+            "1E":[1184753468620152922]
+        }
+        # self.loop_start.start()
+        self.check = False
+class schedule_class(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.schedule_manager = ClassScheduleManager()

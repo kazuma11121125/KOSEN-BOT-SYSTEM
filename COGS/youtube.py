@@ -6,11 +6,36 @@ import os
 import random
 
 class MusicCog(commands.Cog):
+    """
+    A class representing a Discord bot cog for playing and downloading music from YouTube.
+
+    Attributes:
+    - bot (discord.ext.commands.Bot): The Discord bot instance.
+    - played_history (set): A set to manage the history of played songs.
+
+    Methods:
+    - download_audio(url): Downloads audio from the given YouTube URL.
+    - play_random_mp3(voice_channel): Plays a random MP3 file in the specified voice channel.
+    - download(ctx, url): Command to download audio from a YouTube URL.
+    - play_all(ctx): Command to play all downloaded MP3 files in the user's voice channel.
+    - stop(ctx): Command to stop playing and disconnect from the voice channel.
+    - on_raw_reaction_add(payload): Event listener for reacting to YouTube URLs with a thumbs-up emoji.
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.played_history = set()  # 再生した曲の履歴を管理するセット
 
     async def download_audio(self, url):
+        """
+        Downloads audio from the given YouTube URL.
+
+        Args:
+        - url (str): The YouTube URL.
+
+        Returns:
+        - str: The title of the downloaded audio.
+        """
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -27,6 +52,15 @@ class MusicCog(commands.Cog):
         return info["title"]
 
     async def play_random_mp3(self, voice_channel):
+        """
+        Plays a random MP3 file in the specified voice channel.
+
+        Args:
+        - voice_channel (discord.VoiceChannel): The voice channel to play the MP3 file in.
+
+        Returns:
+        - bool: True if a file was played, False otherwise.
+        """
         # ダウンロード先のディレクトリから、MP3ファイルを取得
         mp3_files = [f for f in os.listdir('downloads') if f.endswith('.mp3') and f not in self.played_history]
         if mp3_files:
@@ -48,12 +82,25 @@ class MusicCog(commands.Cog):
 
     @commands.command()
     async def download(self, ctx, url):
+        """
+        Command to download audio from a YouTube URL.
+
+        Args:
+        - ctx (discord.ext.commands.Context): The command context.
+        - url (str): The YouTube URL.
+        """
         await ctx.send("Start")
         title = await self.download_audio(url)
         await ctx.send(f'Download complete: {title}.mp3')
 
     @commands.command()
     async def play_all(self, ctx):
+        """
+        Command to play all downloaded MP3 files in the user's voice channel.
+
+        Args:
+        - ctx (discord.ext.commands.Context): The command context.
+        """
         channel = ctx.message.author.voice.channel
         voice_channel = await channel.connect()
 
@@ -68,6 +115,12 @@ class MusicCog(commands.Cog):
 
     @commands.command()
     async def stop(self, ctx):
+        """
+        Command to stop playing and disconnect from the voice channel.
+
+        Args:
+        - ctx (discord.ext.commands.Context): The command context.
+        """
         # スキップ時に再生履歴をクリア
         self.played_history.clear()
 
@@ -79,6 +132,12 @@ class MusicCog(commands.Cog):
             
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        """
+        Event listener for reacting to YouTube URLs with a thumbs-up emoji.
+
+        Args:
+        - payload (discord.RawReactionActionEvent): The raw reaction event payload.
+        """
         # リアクションを追加したユーザーを取得
         user = await self.bot.fetch_user(payload.user_id)
         # ユーザーがボットかどうかを確認
