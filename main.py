@@ -9,10 +9,12 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 COGS = [
-    "COGS.schedule",
-    "COGS.homework",
+    # "COGS.schedule",
+    # "COGS.homework",
     "jishaku",
-    "COGS.youtube"
+    # "COGS.youtube"
+    "memorization_maker_view_discord",
+    "memorization_maker_add_discord",
 ]
 
 class MyBot(commands.Bot):
@@ -37,7 +39,7 @@ class MyBot(commands.Bot):
 
         print(f"導入数 {(len(self.guilds))}")
         print("-----------------------")
-        await bot.get_channel(1195565220408610828).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
+        await bot.get_channel(1175352758904307792).send("ダッシュボードβ",view = DiscordButtonModel_disbord())
 #1175352758904307792 test
 #1195565220408610828 honban
 bot = MyBot(intents=discord.Intents.all(), prefix='k!')
