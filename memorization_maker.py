@@ -33,7 +33,7 @@ class MemorizationSystem:
         except FileNotFoundError:
             return {"memorization": {}}
 
-    async def add_mission(self, id, title, mode, mission, answer, select=None):
+    async def add_mission(self, id:str, title:str, mode:int, mission:str, answer:str, select=None):
         """
         Add a mission to the memorization data.
 
@@ -49,18 +49,20 @@ class MemorizationSystem:
             bool: True if the mission is added successfully, False otherwise.
         """
         self.data = await self.load_data()
+        id = str(id)
+        print(self.data["memorization"][id])
         if not id in self.data["memorization"]:
-            if not id in self.data["memorization"]:
-                self.data["memorization"][id] = {title: {"content": []}}
-            if mode == 0:
-                print("mode 0")
-                self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "answer": answer})
-            if mode == 1:
-                self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "select": select, "answer": answer})
-            await self.save_data()
-            return True
-        else:
-            return False
+            self.data["memorization"][id] = {}
+            print("idがない")
+        if not title in self.data["memorization"][id]:
+            self.data["memorization"][id][title] = {"content": []}
+            print("titleがない")
+        if mode == 0:
+            self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "answer": answer})
+        if mode == 1:
+            self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "select": select, "answer": answer})
+        await self.save_data()
+        return True
 
     async def del_mission(self, id, title, question):
         """
