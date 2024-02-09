@@ -46,7 +46,7 @@ class Memorization_Add_Discord_Ui(ui.Modal,title="問題追加"):
         super().__init__()
         self.title = titles 
         self.inputs =[
-            ui.TextInput(label="問題",style=discord.TextStyle.short),
+            ui.TextInput(label="問題",style=discord.TextStyle.long),
             ui.TextInput(label="答え",style=discord.TextStyle.short)
         
         ]
@@ -123,7 +123,7 @@ class Memorization_Add_Discord_Ui_Select(ui.Modal,title="問題追加"):
         super().__init__()
         self.title = title
         self.inputs = [
-            ui.TextInput(label="問題", style=discord.TextStyle.short),
+            ui.TextInput(label="問題", style=discord.TextStyle.long),
         ]
         
         for _ in range(select_count):
