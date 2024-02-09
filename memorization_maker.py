@@ -3,7 +3,6 @@ import json
 class MemorizationSystem:
     def __init__(self,filename='memorization.json'):
         self.filename = filename
-        self.data = self.load_data()
 
     async def save_data(self):
         """
@@ -18,6 +17,7 @@ class MemorizationSystem:
         with open(self.filename, 'w', encoding='utf-8') as file:
             json.dump(self.data, file, ensure_ascii=False, indent=2)
 
+    
     async def load_data(self):
         """
         Loads the data from a file and returns it as a dictionary.
