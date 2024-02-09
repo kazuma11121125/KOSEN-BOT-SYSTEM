@@ -66,8 +66,11 @@ class Memorization_Add_Discord_Ui(ui.Modal,title="問題追加"):
         """
         question, answer = [str(input_item) for input_item in self.inputs]
         memorization = memorization_maker.MemorizationSystem()
-        await memorization.add_mission(interaction.user.id, self.title, 0, question, answer)
-
+        ch = await memorization.add_mission(interaction.user.id, self.title, 0, question,answer)
+        if ch:
+            await interaction.response.edit_message(view=Memorization_Add_Discord_Button(self.title))
+        else:
+            await interaction.response.send_message("追加失敗", ephemeral=True)
 class Memorization_Add_Discord_Ui_Select_Edit_Count(discord.ui.Select):
     """
     A custom select menu for editing the count of selected items in the Memorization Add Discord UI.
@@ -85,7 +88,7 @@ class Memorization_Add_Discord_Ui_Select_Edit_Count(discord.ui.Select):
 
     def __init__(self, title):
         self.title = title
-        super().__init__(placeholder="選択数を選択してください", min_values=1, max_values=1, options=[discord.SelectOption(label=str(i), value=str(i)) for i in range(1, 9)])
+        super().__init__(placeholder="選択数を選択してください", min_values=1, max_values=1, options=[discord.SelectOption(label=str(i), value=str(i)) for i in range(1, 5)])
 
     async def callback(self, interaction: discord.Interaction):
         """
@@ -98,8 +101,8 @@ class Memorization_Add_Discord_Ui_Select_Edit_Count(discord.ui.Select):
             None
 
         """
-        embed = discord.Embed(title="問題追加", description=f"現在の選択問題設定個数:{int(self.values[0])}", color=0x00ff00, view=Memorization_Add_Discord_Button(self.title))
-        await interaction.response.edit_message(embed=embed, view=Memorization_Add_Discord_Ui_Select(self.title, int(self.values[0])))
+        embed = discord.Embed(title="問題追加", description=f"現在の選択問題設定個数:{int(self.values[0])}", color=0x00ff00)
+        await interaction.response.edit_message(embed=embed, view=Memorization_Add_Discord_Button(self.title, int(self.values[0])))
 
 class Memorization_Add_Discord_Ui_Select_Edit_Count_View(discord.ui.View):
     def __init__(self,title):
@@ -146,9 +149,11 @@ class Memorization_Add_Discord_Ui_Select(ui.Modal,title="問題追加"):
         selects = [str(input_item) for input_item in self.inputs[1:]]  # 残りは選択肢です
 
         memorization = memorization_maker.MemorizationSystem()
-        await memorization.add_mission(interaction.user.id, self.title, 1, question, selects)
-
-    
+        ch = await memorization.add_mission(interaction.user.id, self.title, 1, question, selects)
+        if ch:
+            await interaction.response.edit_message(view=Memorization_Add_Discord_Button(self.title))
+        else:
+            await interaction.response.send_message("追加失敗", ephemeral=True)
 class Memorization_question_Discord_Select(discord.ui.Select):
     """
     A custom select menu for selecting a memorization mission in the Memorization Discord UI.
@@ -355,7 +360,7 @@ class Memorization_Add_Discord_Button(discord.ui.View):
         elif mode == "select_add":
             await interaction.response.send_modal(Memorization_Add_Discord_Ui_Select(self.title, self.base_count))
         elif mode == "count":
-            await interaction.response.edit_message("選択数を選択してください",view=Memorization_Add_Discord_Ui_Select_Edit_Count_View(self.title))
+            await interaction.response.edit_message(view=Memorization_Add_Discord_Ui_Select_Edit_Count_View(self.title))
         elif mode == "delete":
             memorization = memorization_maker.MemorizationSystem()
             lists:list = await memorization.get_mission(interaction.user.id,self.title)
@@ -389,6 +394,7 @@ class Memorization_Add_Discord_Button(discord.ui.View):
     @discord.ui.button(label="終了", style=discord.ButtonStyle.red)
     async def close(self,interaction:discord.Interaction,button:discord.ui.Button):
         await self.swithcing(interaction,button,"close")
+
 class Memorization_maker_main_Cog(commands.Cog):
     def __init__(self, bot):
         """
@@ -443,7 +449,6 @@ class Memorization_maker_main_Cog(commands.Cog):
         """
         lists = await self.memorization.get_mission_title(interaction.user.id)
         await interaction.response.send_message("編集する問題を選択してください", view=Memorization_question_Discord_Select(lists, "edit"), ephemeral=True)
-
 
 async def setup(bot):
     await bot.add_cog(Memorization_maker_main_Cog(bot))

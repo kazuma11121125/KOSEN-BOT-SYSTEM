@@ -53,10 +53,11 @@ class MemorizationSystem:
             if not id in self.data["memorization"]:
                 self.data["memorization"][id] = {title: {"content": []}}
             if mode == 0:
+                print("mode 0")
                 self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "answer": answer})
-
             if mode == 1:
                 self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "select": select, "answer": answer})
+            await self.save_data()
             return True
         else:
             return False
