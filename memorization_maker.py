@@ -50,7 +50,6 @@ class MemorizationSystem:
         """
         self.data = await self.load_data()
         id = str(id)
-        print(self.data["memorization"][id])
         if not id in self.data["memorization"]:
             self.data["memorization"][id] = {}
             print("idがない")
