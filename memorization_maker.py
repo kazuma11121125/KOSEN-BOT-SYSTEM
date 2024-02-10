@@ -52,10 +52,8 @@ class MemorizationSystem:
         id = str(id)
         if not id in self.data["memorization"]:
             self.data["memorization"][id] = {}
-            print("idがない")
         if not title in self.data["memorization"][id]:
             self.data["memorization"][id][title] = {"content": []}
-            print("titleがない")
         if mode == 0:
             self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "answer": answer})
         if mode == 1:
@@ -75,6 +73,7 @@ class MemorizationSystem:
         Returns:
         - bool: True if the question is successfully deleted, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if id in self.data["memorization"]:
             for cont, item in enumerate(self.data["memorization"][id][title]["content"]):
@@ -86,7 +85,7 @@ class MemorizationSystem:
         else:
             return False
     
-    async def edit_misson(self, id, title, number, mode, answer, select_number=None):
+    async def edit_misson(self, id, title, number, modes, value, select_number=None):
         """
         Edit a mission in the memorization data.
 
@@ -97,21 +96,28 @@ class MemorizationSystem:
             mode (str): The mode of the content to edit.
             answer (str): The new answer for the content.
             select_number (int, optional): The number of the select option to edit (only applicable if mode is "select"). Defaults to None.
-
+            modes (int): The mode of the mission. 0 for question mission, 1 for answer 2 for select_answer.
         Returns:
             bool: True if the mission was successfully edited, False otherwise.
         """
         self.data = await self.load_data()
+        id = str(id)
         if id in self.data["memorization"]:
             if title in self.data["memorization"][id]:
                 edit_before = self.data["memorization"][id][title]["content"][number]
                 if edit_before["mode"] == 0:
-                    edit_before[mode] = answer
+                    if modes == 0:
+                        edit_before["question"] = value
+                    elif modes == 1:
+                        edit_before["answer"] = value
                 elif edit_before["mode"] == 1:
-                    if mode == "select":
-                        edit_before["select"][select_number] = answer
-                    else:
-                        edit_before[mode] = answer
+                    if modes == 0:
+                        edit_before["question"] = value
+                    elif modes == 1:
+                        edit_before["answer"] = value
+                    elif modes == 2:
+                        edit_before["select"][select_number] = value
+                
                 self.data["memorization"][id][title]["content"][number] = edit_before
                 await self.save_data()
                 return True
@@ -120,17 +126,18 @@ class MemorizationSystem:
         else:
             return False
 
-    async def get_mission(self, id, title):
+    async def get_mission(self, id:str, title:str):
         """
         Get the content of a mission based on its ID and title.
 
         Parameters:
-        - id (int): The ID of the mission.
+        - id (str): The ID of the mission.
         - title (str): The title of the mission.
 
         Returns:
         - content (list): The content of the mission if it exists, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if id in self.data["memorization"]:
             if title in self.data["memorization"][id]:
