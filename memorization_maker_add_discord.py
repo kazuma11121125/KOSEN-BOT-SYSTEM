@@ -645,7 +645,7 @@ class Memorization_Add_Discord_Button(discord.ui.View):
             else:
                 await interaction.response.send_message("問題がありません",ephemeral=True)
         elif mode == "close":
-            await interaction.response.edit_message(content="終了")
+            await interaction.response.edit_message(content="終了",view=None)
             
     @discord.ui.button(label="問題を追加", style=discord.ButtonStyle.blurple)
     async def add(self,interaction:discord.Interaction,button:discord.ui.Button):
