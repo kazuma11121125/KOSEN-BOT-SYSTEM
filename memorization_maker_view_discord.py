@@ -37,7 +37,6 @@ class Maker_Answer(ui.View):
         if result:
             await self.memorizationmaker.edit_user_status(interaction.user.id,self.title,0,1)
 
-
 class Memorization_question_Select(discord.ui.Select):
     """
     A custom select menu for selecting a memorization mission in the Memorization Discord UI.
@@ -120,13 +119,13 @@ class Memorization_play_main:
         """
         await self.memorizationmaker.add_user_status(interaction.user.id, self.title)
         await self.memorizationmaker.edit_user_status(interaction.user.id, self.title, 1, 0)
-        for _ in range(len(self.lists["content"])):
-            mode = self.lists["mode"]
+        for i in range(len(self.lists)):
+            mode = self.lists[i]["mode"]
             if mode == 0:
-                await interaction.response.send_modal(Maker_Answer(self.title, self.lists["content"]))
+                await interaction.response.send_modal(Maker_Answer(self.title, self.lists))
                 
             elif mode == 1:
-                view = Maker_select_View(self.lists["select"], self.title, self.lists["content"])
+                view = Maker_select_View(self.lists[i]["select"], self.title, self.lists)
                 await interaction.response.edit_message("問題", view=view)
             
         dicts:dict = await self.memorizationmaker.get_user_status(interaction.user.id, self.title)

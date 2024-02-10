@@ -158,6 +158,7 @@ class MemorizationSystem:
         Returns:
             list or bool: A list of mission titles if the ID exists in the data, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if id in self.data["memorization"]:
             return list(self.data["memorization"][id].keys())
@@ -207,10 +208,12 @@ class MemorizationSystem:
         Returns:
             bool: True if the user status is added successfully, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if not id in self.data["user_status"]:
             if not id in self.data["user_status"]:
                 self.data["user_status"][id] = {title: {"userid": {"count": 0, "score": 0}}}
+                await self.save_data()
             return True
         else:
             return False
@@ -228,6 +231,7 @@ class MemorizationSystem:
         Returns:
             bool: True if the user status was successfully edited, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if id in self.data["user_status"]:
             if title in self.data["user_status"][id]:

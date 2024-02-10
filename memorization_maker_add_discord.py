@@ -311,30 +311,24 @@ class Memorization_question_Discord_Select(discord.ui.Select):
     """
     A custom select menu for selecting a memorization mission in the Memorization Discord UI.
     """
-    def __init__(self, lists,mode):
+    def __init__(self, lists):
         """
         Initializes the Memorization_question_Discord_Select object.
         """
         self.lists = lists
-        self.mode = mode
         super().__init__(placeholder="タイトルを選択してください", min_values=1, max_values=1, options=[discord.SelectOption(label=i) for i in lists])
 
     async def callback(self, interaction: discord.Interaction):
         """
         The callback method called when an option is selected.
         """
-        memorization = memorization_maker.MemorizationSystem()
         title = self.values[0]
-        lists: list = await memorization.get_mission(interaction.user.id, title)
-        if self.mode == "delete":
-            await interaction.response.send_message("問題を選択してください", ephemeral=True, view=Memorization_delete_Discord_Select(lists, title))
-        elif self.mode == "edit":
-            await interaction.response.send_message("問題を選択してください", ephemeral=True, view=Memorization_Edit_Discord_Select_View(lists, title))
+        await interaction.response.edit_message(content="編集モード",view=Memorization_Add_Discord_Button(title))
 
 class Memorization_question_Discord_Select_View(discord.ui.View):
-    def __init__(self,lists,mode):
+    def __init__(self,lists):
         super().__init__()
-        self.add_item(Memorization_question_Discord_Select(lists,mode))
+        self.add_item(Memorization_question_Discord_Select(lists))
 
 class Memorization_delete_Discord_Select(discord.ui.Select):
     """
@@ -415,27 +409,6 @@ class Memorization_Edit_Discord_Select(discord.ui.Select):
         selected_index = int(self.values[0])
         mode = self.lists[selected_index]["mode"]
         await interaction.response.edit_message(view=Memorization_Edit_Discord_Select_Mode_View(self.title, selected_index, self.lists, mode))
-
-class Memorization_Edit_Discord_Select_View(discord.ui.View):
-    """
-    A custom Discord UI view for selecting and editing memorization items.
-
-    Args:
-        lists (list): The list of memorization items.
-        title (str): The title of the view.
-
-    Attributes:
-        lists (list): The list of memorization items.
-        title (str): The title of the view.
-    """
-
-    def __init__(self, lists, title):
-        super().__init__()
-        self.add_item(Memorization_Edit_Discord_Select(lists, title))
-
-    def __init__(self,lists,title):
-        super().__init__()
-        self.add_item(Memorization_Edit_Discord_Select(lists,title))
 
 class Memorization_Edit_Discord_Select_mode(discord.ui.Select):
     """
@@ -725,20 +698,6 @@ class Memorization_maker_main_Cog(commands.Cog):
         await interaction.response.send_modal(Memorization_Add_Title())
 
     @app_commands.command()
-    async def memorization_delete(self, interaction: discord.Interaction):
-        """
-        Deletes a memorization question.
-
-        Parameters:
-        - interaction (discord.Interaction): The interaction object representing the user's interaction with the command.
-
-        Returns:
-        None
-        """
-        lists = await self.memorization.get_mission_title(interaction.user.id)
-        await interaction.response.send_message("削除する問題を選択してください", view=Memorization_question_Discord_Select_View(lists, "delete"), ephemeral=True)
-
-    @app_commands.command()
     async def memorization_edit(self, interaction: discord.Interaction):
         """
         メモリゼーションの問題を編集するコマンドです。
@@ -750,7 +709,7 @@ class Memorization_maker_main_Cog(commands.Cog):
             None
         """
         lists = await self.memorization.get_mission_title(interaction.user.id)
-        await interaction.response.send_message("編集する問題を選択してください", view=Memorization_question_Discord_Select(lists, "edit"), ephemeral=True)
+        await interaction.response.send_message("編集する問題を選択してください", view=Memorization_question_Discord_Select_View(lists), ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Memorization_maker_main_Cog(bot))
