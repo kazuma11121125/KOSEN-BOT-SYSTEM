@@ -4,6 +4,7 @@ import memorization_maker
 from discord import app_commands
 from discord.ext import commands
 
+
 class MakerSelect(discord.ui.Select):
     def __init__(self,selectlist,title,question,count):
         """
@@ -46,7 +47,7 @@ class MakerSelect(discord.ui.Select):
         embed.add_field(name="正誤",value=f"あなたの回答は{ch}です",inline=False)
         await interaction.response.edit_message(embed=embed,view=MakerAmwerButtonContenu(self.title,self.question,self.count))
 
-    
+
 class MakerSelectView(discord.ui.View):
     def __init__(self, lists, title, question, count):
         """
@@ -63,10 +64,7 @@ class MakerSelectView(discord.ui.View):
         """
         super().__init__()
         self.add_item(MakerSelect(lists, title, question, count))
-class MakerSelectView(discord.ui.View):
-    def __init__(self,lists,title,question,count):
-        super().__init__()
-        self.add_item(MakerSelect(lists,title,question,count))
+
 
 class MakerAnswer(ui.Modal,title="回答"):
     """
@@ -113,7 +111,6 @@ class MakerAnswer(ui.Modal,title="回答"):
             ch = "正解"
         else:
             ch = "不正解"
-            
         embed = discord.Embed(title="回答結果", color=0x00ff00)
         embed.add_field(name="あなたの回答", value=f"{answer}", inline=False)
         embed.add_field(name="正誤", value=f"あなたの回答は{ch}です", inline=False)
@@ -143,8 +140,8 @@ class MakerAmwerButtonContenu(discord.ui.View):
         """
         self.count += 1
         memorization = memorization_maker.MemorizationSystem()
-        lists: list = await memorization.get_mission(interaction.user.id, self.title)
-        memorizationPlayMain = MemorizationPlayMain(self.title, lists, self.count, interaction)
+        lists = await memorization.get_mission(str(interaction.user.id), self.title)
+        memorizationPlayMain = MemorizationPlayMain(self.title, lists, self.count)
         await memorizationPlayMain.main_start(interaction)
 
 class MakerAnwerButton(discord.ui.View):
@@ -212,29 +209,11 @@ class MemorizationQuestionSelect(discord.ui.Select):
         """
         memorization = memorization_maker.MemorizationSystem()
         title = self.values[0]
-        lists: list = await memorization.get_mission(interaction.user.id, title)
-        memorizationPlayMain = MemorizationPlayMain(title, lists,0,interaction)
+        lists = await memorization.get_mission(str(interaction.user.id), title)
+        memorizationPlayMain = MemorizationPlayMain(title, lists,0)
         await memorizationPlayMain.main_start(interaction)
 
-class MemorizationQuestionSelect_View(discord.ui.View):
-    """
-    A custom view class for the MemorizationQuestionSelect select menu.
-    """
 
-    def __init__(self, lists, mode):
-        """
-        Initializes the MemorizationQuestionSelect_View object.
-
-        Args:
-            lists (list): The list of options to be displayed in the select menu.
-            mode (str): The mode of the memorization mission.
-
-        Returns:
-            None
-        """
-        super().__init__()
-        self.add_item(MemorizationQuestionSelect(lists, mode))
-        
 class MemorizationPlayMain:
     """
     Represents a class for playing the memorization game.
@@ -249,7 +228,7 @@ class MemorizationPlayMain:
         main_start(interaction: discord.Interaction): Starts the main process of the game.
     """
 
-    def __init__(self, title, lists,counts, interaction: discord.Interaction):
+    def __init__(self, title, lists, counts):
         self.title = title
         self.lists = lists
         self.counts = counts
@@ -284,7 +263,8 @@ class MemorizationPlayMain:
             select = self.lists[self.counts]["select"]
             view = MakerAnwerButton(self.title,question,mode,self.counts,select)
             await interaction.response.send_message(embed=embed, view=view,ephemeral=True)
-    
+
+
 class MakerComanndsCog(commands.Cog):
     """コグクラス: メモリゼーションメーカーのコマンドを管理するクラス"""
     def __init__(self,bot):
@@ -296,7 +276,10 @@ class MakerComanndsCog(commands.Cog):
         """問題を表示するコマンド"""
         title = await self.memorizationmaker.get_mission_title(interaction.user.id)
         embed = discord.Embed(title="問題を選択してください",color=0x00ff00)
-        await interaction.response.send_message(embed=embed,view= MemorizationQuestionSelect_View(title,"view"),ephemeral=True)
+        view = discord.ui.View()
+        view.add_item(MemorizationQuestionSelect(title, "view"))
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(MakerComanndsCog(bot))
