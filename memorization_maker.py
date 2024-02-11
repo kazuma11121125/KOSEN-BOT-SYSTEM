@@ -20,18 +20,16 @@ class MemorizationSystem:
     
     async def load_data(self):
         """
-        Loads the data from a file and returns it as a dictionary.
-
-        If the file is not found, an empty dictionary is returned.
+        Loads the data from a file and save it for `self.data`.
 
         Returns:
-            dict: The loaded data as a dictionary.
+            None
         """
         try:
             with open(self.filename, 'r', encoding='utf-8') as file:
-                return json.load(file)
+                self.data = json.load(file)
         except FileNotFoundError:
-            return {"memorization": {}}
+            self.data = {"memorization": {}}
 
     async def add_mission(self, id:str, title:str, mode:int, mission:str, answer:str, select=None):
         """
@@ -48,12 +46,10 @@ class MemorizationSystem:
         Returns:
             bool: True if the mission is added successfully, False otherwise.
         """
-        self.data = await self.load_data()
+        await self.load_data()
         id = str(id)
-        if not id in self.data["memorization"]:
-            self.data["memorization"][id] = {}
-        if not title in self.data["memorization"][id]:
-            self.data["memorization"][id][title] = {"content": []}
+        self.data["memorization"].setdefault(id, {})
+        self.data["memorization"][id].setdefault(title, {"content": []})
         if mode == 0:
             self.data["memorization"][id][title]["content"].append({"question": mission, "mode": mode, "answer": answer})
         if mode == 1:
@@ -74,16 +70,14 @@ class MemorizationSystem:
         - bool: True if the question is successfully deleted, False otherwise.
         """
         id = str(id)
-        self.data = await self.load_data()
+        await self.load_data()
         if id in self.data["memorization"]:
             for cont, item in enumerate(self.data["memorization"][id][title]["content"]):
                 if item["question"] == question:
                     self.data["memorization"][id][title]["content"].pop(cont)
                     await self.save_data()
                     return True
-            return False
-        else:
-            return False
+        return False
     
     async def edit_misson(self, id, title, number, modes, value, select_number=None):
         """
@@ -100,7 +94,7 @@ class MemorizationSystem:
         Returns:
             bool: True if the mission was successfully edited, False otherwise.
         """
-        self.data = await self.load_data()
+        await self.load_data()
         id = str(id)
         if id in self.data["memorization"]:
             if title in self.data["memorization"][id]:
@@ -121,10 +115,7 @@ class MemorizationSystem:
                 self.data["memorization"][id][title]["content"][number] = edit_before
                 await self.save_data()
                 return True
-            else:
-                return False
-        else:
-            return False
+        return False
 
     async def get_mission(self, id:str, title:str):
         """
@@ -137,15 +128,8 @@ class MemorizationSystem:
         Returns:
         - content (list): The content of the mission if it exists, False otherwise.
         """
-        id = str(id)
-        self.data = await self.load_data()
-        if id in self.data["memorization"]:
-            if title in self.data["memorization"][id]:
-                return self.data["memorization"][id][title]["content"]
-            else:
-                return False
-        else:
-            return False
+        await self.load_data()
+        return self.data["memorization"].get(str(id), {}).get(title, {"content": False})["content"]
         
 
     async def get_mission_title(self, id):
@@ -159,11 +143,10 @@ class MemorizationSystem:
             list or bool: A list of mission titles if the ID exists in the data, False otherwise.
         """
         id = str(id)
-        self.data = await self.load_data()
+        await self.load_data()
         if id in self.data["memorization"]:
             return list(self.data["memorization"][id].keys())
-        else:
-            return False
+        return False
 
     async def check_answer(self,id,title,question,answer,mode):
         """
@@ -186,20 +169,10 @@ class MemorizationSystem:
                 for item in self.data["memorization"][id][title]["content"]:
                     if item["question"] == question:
                         if mode == 0:
-                            if item["answer"] == answer:
-                                return True
-                            else:
-                                return False
+                            return item["answer"] == answer
                         else:
-                            if answer == item["select"][int(item["answer"])-1]:
-                                return True
-                            else:
-                                return False
-                return False
-            else:
-                return False
-        else:
-            return False
+                            return answer == item["select"][int(item["answer"])-1]
+        return False
 
     """
     user_status System ↓
@@ -217,18 +190,13 @@ class MemorizationSystem:
             bool: True if the user status is added successfully, False otherwise.
         """
         id = str(id)
-        self.data = await self.load_data()
+        await self.load_data()
         if not id in self.data["user_status"]:
             self.data["user_status"][id] = {title: {"userid": {"count": 0, "score": 0}}}
-            await self.save_data()
-            return True
-        if id in self.data["user_status"]:
-            if not title in self.data["user_status"][id]:
-                self.data["user_status"][id][title] = {"userid": {"count": 0, "score": 0}}
-            await self.save_data()
-            return True
-        else:
-            return False
+        elif not title in self.data["user_status"][id]:
+            self.data["user_status"][id][title] = {"userid": {"count": 0, "score": 0}}
+        await self.save_data()
+        return True
         
     async def edit_user_status(self, id, title, count, score):
         """
@@ -244,7 +212,7 @@ class MemorizationSystem:
             bool: True if the user status was successfully edited, False otherwise.
         """
         id = str(id)
-        self.data = await self.load_data()
+        await self.load_data()
         if id in self.data["user_status"]:
             if title in self.data["user_status"][id]:
                 edit_before = self.data["user_status"][id][title]["userid"]
@@ -253,10 +221,7 @@ class MemorizationSystem:
                 self.data["user_status"][id][title]["userid"] = edit_before
                 await self.save_data()
                 return True
-            else:
-                return False
-        else:
-            return False
+        return False
         
     async def get_user_status(self, id, title):
         """
@@ -270,11 +235,5 @@ class MemorizationSystem:
             dict: The user status of the user if it exists, False otherwise.
         """
         id = str(id)
-        self.data = await self.load_data()
-        if id in self.data["user_status"]:
-            if title in self.data["user_status"][id]:
-                return self.data["user_status"][id][title]["userid"]
-            else:
-                return False
-        else:
-            return False
+        await self.load_data()
+        return self.data["user_status"].get(str(id), {}).get(title, {"userid": False})["userid"]
