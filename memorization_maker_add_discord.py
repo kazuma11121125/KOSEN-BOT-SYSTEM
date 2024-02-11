@@ -4,7 +4,7 @@ import memorization_maker
 from discord import app_commands
 from discord.ext import commands
 
-class Memorization_Add_Title(ui.Modal, title="タイトル追加"):
+class MemorizationAddTitle(ui.Modal, title="タイトル追加"):
     """
     A class representing a view for adding a title in the Memorization Maker Discord bot system.
     """
@@ -25,10 +25,11 @@ class Memorization_Add_Title(ui.Modal, title="タイトル追加"):
         - None
         """
         title = str(self.title_input.value)
+        
         embed = discord.Embed(title="問題追加", description=f"現在の選択問題設定個数:4", color=0x00ff00)
         await interaction.response.send_message(embed=embed, ephemeral=True, view=Memorization_Add_Discord_Button(title))
 
-class Memorization_Add_Discord_Ui(ui.Modal,title="問題追加"):
+class MemorizationAddDiscordUi(ui.Modal,title="問題追加"):
     """
     A class representing the user interface for adding a memorization mission in a Discord bot.
 
@@ -37,7 +38,7 @@ class Memorization_Add_Discord_Ui(ui.Modal,title="問題追加"):
         inputs (list): A list of ui.TextInput objects representing the input fields for the question and answer.
 
     Methods:
-        __init__(self, title): Initializes the Memorization_Add_Discord_Ui object.
+        __init__(self, title): Initializes the MemorizationAddDiscordUi object.
         on_submit(self, interaction): Handles the event when the user submits the form.
 
     """
@@ -72,7 +73,7 @@ class Memorization_Add_Discord_Ui(ui.Modal,title="問題追加"):
         else:
             await interaction.response.send_message("追加失敗", ephemeral=True)
 
-class Memorization_Add_Discord_Ui_Select_Edit_Count(discord.ui.Select):
+class MemorizationAddDiscordUiSelect_EditCount(discord.ui.Select):
     """
     A custom select menu for editing the count of selected items in the Memorization Add Discord UI.
 
@@ -105,12 +106,12 @@ class Memorization_Add_Discord_Ui_Select_Edit_Count(discord.ui.Select):
         embed = discord.Embed(title="問題追加", description=f"現在の選択問題設定個数:{int(self.values[0])}", color=0x00ff00)
         await interaction.response.edit_message(embed=embed, view=Memorization_Add_Discord_Button(self.title, int(self.values[0])))
 
-class Memorization_Add_Discord_Ui_Select_Edit_Count_View(discord.ui.View):
+class MemorizationAddDiscordUiSelectEditCountView(discord.ui.View):
     def __init__(self,title):
         super().__init__()
-        self.add_item(Memorization_Add_Discord_Ui_Select_Edit_Count(title))
+        self.add_item(MemorizationAddDiscordUiSelect_EditCount(title))
 
-class Memorization_Add_Discord_Ui_Select_Title(ui.Modal,title="タイトル設定"):
+class MemorizationAddDiscordUiSelectTitle(ui.Modal,title="タイトル設定"):
     """
     A class representing a modal for selecting a title in the Memorization Add Discord UI.
 
@@ -120,7 +121,7 @@ class Memorization_Add_Discord_Ui_Select_Title(ui.Modal,title="タイトル設�
     - inputs (list): A list of input items.
 
     Methods:
-    - __init__(self, title, base_count=4): Initializes the Memorization_Add_Discord_Ui_Select_Title object.
+    - __init__(self, title, base_count=4): Initializes the MemorizationAddDiscordUiSelectTitle object.
     - on_submit(self, interaction: discord.Interaction): Handles the submit event of the modal.
     """
     def __init__(self, title, base_count=4):
@@ -136,9 +137,9 @@ class Memorization_Add_Discord_Ui_Select_Title(ui.Modal,title="タイトル設�
     async def on_submit(self, interaction: discord.Interaction):
         question = str(self.inputs[0])  # 最初の入力は問題です
         embed = discord.Embed(title="問題", description=f"{question}", color=0x00ff00)
-        await interaction.response.send_message(embed=embed,ephemeral=True, view=Memorization_Add_Discord_Ui_Select_Button(self.title, self.base_count, 1,question))
+        await interaction.response.send_message(embed=embed,ephemeral=True, view=MemorizationAddDiscordUiSelectButton(self.title, self.base_count, 1,question))
 
-class Memorization_Add_Discord_Ui_Select_Question_Select(ui.Modal, title="選択問題追加"):
+class MemorizationAddDiscordUiSelectQuestionSelect(ui.Modal, title="選択問題追加"):
     """
     A class representing a modal for selecting questions in the Memorization Add Discord UI.
 
@@ -172,9 +173,9 @@ class Memorization_Add_Discord_Ui_Select_Question_Select(ui.Modal, title="選択
         for value in select:
             embed.add_field(name=f"選択肢:{a}", value=value, inline=False)
             a += 1
-        await interaction.response.edit_message(embed=embed, view=Memorization_Add_Discord_Ui_Select_Button(self.title, self.base_count, 2, self.question, select))
+        await interaction.response.edit_message(embed=embed, view=MemorizationAddDiscordUiSelectButton(self.title, self.base_count, 2, self.question, select))
 
-class Memorization_Add_Discord_Ui_Select_Answer_Select(discord.ui.Select):
+class MemorizationAddDiscordUiSelectAnswerSelect(discord.ui.Select):
     """
     A custom UI select component for selecting answers in the Memorization Maker Discord bot.
 
@@ -240,7 +241,7 @@ class Memorization_Add_Discord_Ui_Select_Answer_Select(discord.ui.Select):
             await memorizationmaker.add_mission(interaction.user.id, self.title, 1, self.question, self.answer, self.select)
             await interaction.response.edit_message(embed=embed, view=None)
 
-class Memorization_Add_Discord_Ui_Select_Answer_View(discord.ui.View):
+class MemorizationAddDiscordUiSelectAnswerView(discord.ui.View):
     """
     A class representing the view for selecting an answer in the Memorization Add Discord UI.
 
@@ -252,14 +253,14 @@ class Memorization_Add_Discord_Ui_Select_Answer_View(discord.ui.View):
     """
     def __init__(self, title, base_count, question, select):
         super().__init__()
-        self.add_item(Memorization_Add_Discord_Ui_Select_Answer_Select(title, base_count, question, select))
+        self.add_item(MemorizationAddDiscordUiSelectAnswerSelect(title, base_count, question, select))
 
-class Memorization_Add_Discord_Ui_Select_Answer_View(discord.ui.View):
+class MemorizationAddDiscordUiSelectAnswerView(discord.ui.View):
     def __init__(self,title,base_count,question,select):
         super().__init__()
-        self.add_item(Memorization_Add_Discord_Ui_Select_Answer_Select(title,base_count,question,select))
+        self.add_item(MemorizationAddDiscordUiSelectAnswerSelect(title,base_count,question,select))
 
-class Memorization_Add_Discord_Ui_Select_Button(discord.ui.View):
+class MemorizationAddDiscordUiSelectButton(discord.ui.View):
     """
     A custom UI select button for the Memorization Maker Discord bot.
 
@@ -289,11 +290,11 @@ class Memorization_Add_Discord_Ui_Select_Button(discord.ui.View):
             mode (int): The mode of the select button.
         """
         if mode == 0:
-            await interaction.response.send_modal(Memorization_Add_Discord_Ui_Select_Title(self.title))
+            await interaction.response.send_modal(MemorizationAddDiscordUiSelectTitle(self.title))
         elif mode == 1:
-            await interaction.response.send_modal(Memorization_Add_Discord_Ui_Select_Question_Select(self.title, self.base_count, self.question))
+            await interaction.response.send_modal(MemorizationAddDiscordUiSelectQuestionSelect(self.title, self.base_count, self.question))
         elif mode == 2:
-            await interaction.response.edit_message(view=Memorization_Add_Discord_Ui_Select_Answer_View(self.title, self.base_count, self.question, self.select))
+            await interaction.response.edit_message(view=MemorizationAddDiscordUiSelectAnswerView(self.title, self.base_count, self.question, self.select))
     
     
     @discord.ui.button(label="続行", style=discord.ButtonStyle.blurple)
@@ -307,13 +308,13 @@ class Memorization_Add_Discord_Ui_Select_Button(discord.ui.View):
         """
         await self.swithcing(interaction, button, self.mode)
 
-class Memorization_question_Discord_Select(discord.ui.Select):
+class Memorization_questionDiscordSelect(discord.ui.Select):
     """
     A custom select menu for selecting a memorization mission in the Memorization Discord UI.
     """
     def __init__(self, lists):
         """
-        Initializes the Memorization_question_Discord_Select object.
+        Initializes the Memorization_questionDiscordSelect object.
         """
         self.lists = lists
         super().__init__(placeholder="タイトルを選択してください", min_values=1, max_values=1, options=[discord.SelectOption(label=i) for i in lists])
@@ -325,12 +326,12 @@ class Memorization_question_Discord_Select(discord.ui.Select):
         title = self.values[0]
         await interaction.response.edit_message(content="編集モード",view=Memorization_Add_Discord_Button(title))
 
-class Memorization_question_Discord_Select_View(discord.ui.View):
+class Memorization_questionDiscordSelectView(discord.ui.View):
     def __init__(self,lists):
         super().__init__()
-        self.add_item(Memorization_question_Discord_Select(lists))
+        self.add_item(Memorization_questionDiscordSelect(lists))
 
-class Memorization_delete_Discord_Select(discord.ui.Select):
+class MemorizationDelete_DiscordSelect(discord.ui.Select):
     """
     A custom select menu for deleting a memorization mission in Discord.
 
@@ -344,7 +345,7 @@ class Memorization_delete_Discord_Select(discord.ui.Select):
 
     def __init__(self, lists, title):
         """
-        Initializes the Memorization_delete_Discord_Select object.
+        Initializes the MemorizationDelete_DiscordSelect object.
 
         Parameters:
         - lists (list): The list of options for the select menu.
@@ -369,12 +370,12 @@ class Memorization_delete_Discord_Select(discord.ui.Select):
         embed = discord.Embed(title="問題追加", color=0x00ff00)
         await interaction.response.edit_message(embed=embed, view=Memorization_Add_Discord_Button(self.title))
 
-class Memorization_delete_Discord_Select_View(discord.ui.View):
+class MemorizationDeleteDiscordSelectView(discord.ui.View):
     def __init__(self,lists,title):
         super().__init__()
-        self.add_item(Memorization_delete_Discord_Select(lists,title))
+        self.add_item(MemorizationDelete_DiscordSelect(lists,title))
 
-class Memorization_Edit_Discord_Select(discord.ui.Select):
+class MemorizationEditDiscordSelect(discord.ui.Select):
     """
     A custom select menu for selecting a question in the Memorization Edit Discord UI.
 
@@ -383,13 +384,13 @@ class Memorization_Edit_Discord_Select(discord.ui.Select):
     - title (str): The title of the select menu.
 
     Methods:
-    - __init__(self, lists, title): Initializes the Memorization_Edit_Discord_Select object.
+    - __init__(self, lists, title): Initializes the MemorizationEditDiscordSelect object.
     - callback(self, interaction): The callback method that is called when a selection is made.
     """
 
     def __init__(self, lists, title):
         """
-        Initializes the Memorization_Edit_Discord_Select object.
+        Initializes the MemorizationEditDiscordSelect object.
 
         Parameters:
         - lists (list): The list of questions to be displayed in the select menu.
@@ -408,9 +409,9 @@ class Memorization_Edit_Discord_Select(discord.ui.Select):
         """
         selected_index = int(self.values[0])
         mode = self.lists[selected_index]["mode"]
-        await interaction.response.edit_message(view=Memorization_Edit_Discord_Select_Mode_View(self.title, selected_index, self.lists, mode))
+        await interaction.response.edit_message(view=MemorizationEditDiscordSelectModeView(self.title, selected_index, self.lists, mode))
 
-class Memorization_Edit_Discord_Select_mode(discord.ui.Select):
+class MemorizationEditDiscordSelectMode(discord.ui.Select):
     """
     A custom select menu for selecting the mode in the Memorization Edit Discord.
 
@@ -451,13 +452,13 @@ class Memorization_Edit_Discord_Select_mode(discord.ui.Select):
 
         """
         if self.values[0] == "0":
-            await interaction.response.send_modal(Memorization_Edit_Discord_Select_Modal(self.title, self.selected_index, self.lists, 0))
+            await interaction.response.send_modal(MemorizationEditDiscordSelectModal(self.title, self.selected_index, self.lists, 0))
         elif self.values[0] == "1":
-            await interaction.response.send_modal(Memorization_Edit_Discord_Select_Modal(self.title, self.selected_index, self.lists, 1))
+            await interaction.response.send_modal(MemorizationEditDiscordSelectModal(self.title, self.selected_index, self.lists, 1))
         elif self.values[0] == "2":
-            await interaction.response.edit_message(view=Memorization_Edit_Discord_SelectMenu_View(self.title, self.selected_index, self.lists))
+            await interaction.response.edit_message(view=MemorizationEditDiscordSelectMenuView(self.title, self.selected_index, self.lists))
 
-class Memorization_Edit_Discord_Select_Mode_View(discord.ui.View):
+class MemorizationEditDiscordSelectModeView(discord.ui.View):
     """
     A class representing the view for selecting a mode in the Memorization Edit Discord feature.
 
@@ -473,9 +474,9 @@ class Memorization_Edit_Discord_Select_Mode_View(discord.ui.View):
 
     def __init__(self, title, selected_index, lists, mode):
         super().__init__()
-        self.add_item(Memorization_Edit_Discord_Select_mode(title, selected_index, lists, mode))
+        self.add_item(MemorizationEditDiscordSelectMode(title, selected_index, lists, mode))
 
-class Memorization_Edit_Discord_SelectMenu(discord.ui.Select):
+class MemorizationEditDiscordSelectMenu(discord.ui.Select):
     """
     A custom select menu for selecting a question in the memorization edit Discord interaction.
 
@@ -490,7 +491,7 @@ class Memorization_Edit_Discord_SelectMenu(discord.ui.Select):
 
     def __init__(self, title, selected_index, lists):
         """
-        Initializes a Memorization_Edit_Discord_SelectMenu instance.
+        Initializes a MemorizationEditDiscordSelectMenu instance.
 
         Args:
             title (str): The title of the select menu.
@@ -520,12 +521,12 @@ class Memorization_Edit_Discord_SelectMenu(discord.ui.Select):
         """
         number = int(self.values[0])
         await interaction.response.send_modal(
-            Memorization_Edit_Discord_Select_Modal(
+            MemorizationEditDiscordSelectModal(
                 self.title, self.selected_index, self.lists, 2, number
             )
         )
 
-class Memorization_Edit_Discord_SelectMenu_View(discord.ui.View):
+class MemorizationEditDiscordSelectMenuView(discord.ui.View):
     """
     A custom Discord select menu view for editing memorization data.
 
@@ -543,9 +544,9 @@ class Memorization_Edit_Discord_SelectMenu_View(discord.ui.View):
 
     def __init__(self, title, selected_index, lists):
         super().__init__()
-        self.add_item(Memorization_Edit_Discord_SelectMenu(title, selected_index, lists))
+        self.add_item(MemorizationEditDiscordSelectMenu(title, selected_index, lists))
 
-class Memorization_Edit_Discord_Select_Modal(ui.Modal, title="問題編集"):
+class MemorizationEditDiscordSelectModal(ui.Modal, title="問題編集"):
     """
     A modal for editing a memorization task in Discord.
 
@@ -588,27 +589,27 @@ class Memorization_Edit_Discord_Select_Modal(ui.Modal, title="問題編集"):
             await memorization.edit_misson(interaction.user.id, self.title, self.selected_index, self.mode, value, self.selected_number)
         await interaction.response.edit_message(content="編集完了", view=None)
 
-class Memorization_Edit_Discord_Select_View(discord.ui.View):
+class MemorizationEditDiscordSelectView(discord.ui.View):
     """
-    A custom view class for the Memorization_Edit_Discord_Select select menu.
+    A custom view class for the MemorizationEditDiscordSelect select menu.
 
     Attributes:
     - lists (list): The list of questions to be displayed in the select menu.
     - title (str): The title of the select menu.
 
     Methods:
-    - __init__(self, lists, title): Initializes the Memorization_Edit_Discord_Select_View object.
+    - __init__(self, lists, title): Initializes the MemorizationEditDiscordSelectView object.
     """
     def __init__(self, lists, title):
         """
-        Initializes the Memorization_Edit_Discord_Select_View object.
+        Initializes the MemorizationEditDiscordSelectView object.
 
         Parameters:
         - lists (list): The list of questions to be displayed in the select menu.
         - title (str): The title of the select menu.
         """
         super().__init__()
-        self.add_item(Memorization_Edit_Discord_Select(lists, title))
+        self.add_item(MemorizationEditDiscordSelect(lists, title))
 
 class Memorization_Add_Discord_Button(discord.ui.View):
     """
@@ -625,23 +626,23 @@ class Memorization_Add_Discord_Button(discord.ui.View):
     
     async def swithcing(self,interaction:discord.Interaction,button,mode):
         if mode == "add":
-            await interaction.response.send_modal(Memorization_Add_Discord_Ui(self.title))
+            await interaction.response.send_modal(MemorizationAddDiscordUi(self.title))
         elif mode == "select_add":
-            await interaction.response.send_modal(Memorization_Add_Discord_Ui_Select_Title(self.title,self.base_count))
+            await interaction.response.send_modal(MemorizationAddDiscordUiSelectTitle(self.title,self.base_count))
         elif mode == "count":
-            await interaction.response.edit_message(view=Memorization_Add_Discord_Ui_Select_Edit_Count_View(self.title))
+            await interaction.response.edit_message(view=MemorizationAddDiscordUiSelectEditCountView(self.title))
         elif mode == "delete":
             memorization = memorization_maker.MemorizationSystem()
             lists:list = await memorization.get_mission(interaction.user.id,self.title)
             if lists:
-                await interaction.response.send_message("削除する問題を選択してください",view=Memorization_delete_Discord_Select_View(lists,self.title),ephemeral=True)
+                await interaction.response.send_message("削除する問題を選択してください",view=MemorizationDeleteDiscordSelectView(lists,self.title),ephemeral=True)
             else:
                 await interaction.response.send_message("問題がありません",ephemeral=True)
         elif mode == "edit":
             memorization = memorization_maker.MemorizationSystem()
             lists = await memorization.get_mission(interaction.user.id,self.title)
             if lists:
-                await interaction.response.send_message("編集する問題を選択してください",view=Memorization_Edit_Discord_Select_View(lists,self.title),ephemeral=True)
+                await interaction.response.send_message("編集する問題を選択してください",view=MemorizationEditDiscordSelectView(lists,self.title),ephemeral=True)
             else:
                 await interaction.response.send_message("問題がありません",ephemeral=True)
         elif mode == "close":
@@ -670,7 +671,7 @@ class Memorization_Add_Discord_Button(discord.ui.View):
     async def close(self,interaction:discord.Interaction,button:discord.ui.Button):
         await self.swithcing(interaction,button,"close")
 
-class Memorization_maker_main_Cog(commands.Cog):
+class MemorizationMakerMainCog(commands.Cog):
     def __init__(self, bot):
         """
         Initializes an instance of the class.
@@ -695,7 +696,7 @@ class Memorization_maker_main_Cog(commands.Cog):
         Returns:
             None
         """
-        await interaction.response.send_modal(Memorization_Add_Title())
+        await interaction.response.send_modal(MemorizationAddTitle())
 
     @app_commands.command()
     async def memorization_edit(self, interaction: discord.Interaction):
@@ -709,8 +710,8 @@ class Memorization_maker_main_Cog(commands.Cog):
             None
         """
         lists = await self.memorization.get_mission_title(interaction.user.id)
-        await interaction.response.send_message("編集する問題を選択してください", view=Memorization_question_Discord_Select_View(lists), ephemeral=True)
+        await interaction.response.send_message("編集する問題を選択してください", view=Memorization_questionDiscordSelectView(lists), ephemeral=True)
 
 async def setup(bot):
-    await bot.add_cog(Memorization_maker_main_Cog(bot))
+    await bot.add_cog(MemorizationMakerMainCog(bot))
     print("[SystemLog] memorization_maker_add_discord loaded")

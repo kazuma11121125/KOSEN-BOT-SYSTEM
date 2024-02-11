@@ -165,7 +165,7 @@ class MemorizationSystem:
         else:
             return False
 
-    async def check_answer(self,id,title,question,answer):
+    async def check_answer(self,id,title,question,answer,mode):
         """
         Check the answer to a mission.
 
@@ -174,19 +174,27 @@ class MemorizationSystem:
             title (str): The title of the mission.
             question (str): The question of the mission.
             answer (str): The answer to the mission.
+            mode (int): The mode of the mission. 0 for normal mission, 1 for multiple-choice mission.
 
         Returns:
             bool: True if the answer is correct, False otherwise.
         """
         self.data = await self.load_data()
+        id = str(id)
         if id in self.data["memorization"]:
             if title in self.data["memorization"][id]:
                 for item in self.data["memorization"][id][title]["content"]:
                     if item["question"] == question:
-                        if item["answer"] == answer:
-                            return True
+                        if mode == 0:
+                            if item["answer"] == answer:
+                                return True
+                            else:
+                                return False
                         else:
-                            return False
+                            if answer == item["select"][int(item["answer"])-1]:
+                                return True
+                            else:
+                                return False
                 return False
             else:
                 return False
@@ -211,9 +219,13 @@ class MemorizationSystem:
         id = str(id)
         self.data = await self.load_data()
         if not id in self.data["user_status"]:
-            if not id in self.data["user_status"]:
-                self.data["user_status"][id] = {title: {"userid": {"count": 0, "score": 0}}}
-                await self.save_data()
+            self.data["user_status"][id] = {title: {"userid": {"count": 0, "score": 0}}}
+            await self.save_data()
+            return True
+        if id in self.data["user_status"]:
+            if not title in self.data["user_status"][id]:
+                self.data["user_status"][id][title] = {"userid": {"count": 0, "score": 0}}
+            await self.save_data()
             return True
         else:
             return False
@@ -257,6 +269,7 @@ class MemorizationSystem:
         Returns:
             dict: The user status of the user if it exists, False otherwise.
         """
+        id = str(id)
         self.data = await self.load_data()
         if id in self.data["user_status"]:
             if title in self.data["user_status"][id]:
