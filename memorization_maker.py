@@ -22,7 +22,7 @@ class MemorizationData(TypedDict):
 class MemorizationSystem:
     data: MemorizationData
 
-    def __init__(self, filename='memorization.json'):
+    def __init__(self, filename: str = 'memorization.json'):
         self.filename = filename
         self.data = {"memorization": {}, "user_status": {}}
 
@@ -52,7 +52,7 @@ class MemorizationSystem:
         except FileNotFoundError:
             self.data = {"memorization": {}, "user_status": {}}
 
-    async def add_mission(self, id:str, title:str, mode:int, mission:str, answer:str, select: list | None = None):
+    async def add_mission(self, id: str, title: str, mode: int, mission: str, answer: str, select: list | None = None):
         """
         Add a mission to the memorization data.
 
@@ -98,7 +98,7 @@ class MemorizationSystem:
                     return True
         return False
 
-    async def edit_misson(self, id, title, number, modes, value, select_number=None):
+    async def edit_misson(self, id: str, title: str, number: int, modes: int, value: str, select_number: int | None = None):
         """
         Edit a mission in the memorization data.
 
@@ -127,14 +127,15 @@ class MemorizationSystem:
                 elif modes == 1:
                     edit_before["answer"] = value
                 elif modes == 2:
+                    assert select_number is not None and "select" in edit_before
                     edit_before["select"][select_number] = value
-            
+
             self.data["memorization"][id][title][number] = edit_before
             await self.save_data()
             return True
         return False
 
-    async def get_mission(self, id:str, title:str) -> Literal[False] | list[ProblemData]:
+    async def get_mission(self, id: str, title: str) -> Literal[False] | list[ProblemData]:
         """
         Get the content of a mission based on its ID and title.
 
@@ -148,7 +149,7 @@ class MemorizationSystem:
         await self.load_data()
         return self.data["memorization"].get(id, {}).get(title, False)
 
-    async def get_mission_title(self, id):
+    async def get_mission_title(self, id: str):
         """
         Get the mission titles for a given ID.
 
@@ -163,7 +164,7 @@ class MemorizationSystem:
             return list(self.data["memorization"][id].keys())
         return False
 
-    async def check_answer(self,id,title,question,answer,mode) -> bool:
+    async def check_answer(self, id: str, title: str, question: str, answer: str, mode: int) -> bool:
         """
         Check the answer to a mission.
 
@@ -192,7 +193,7 @@ class MemorizationSystem:
     user_status System ↓
     """
 
-    async def add_user_status(self, id, title) -> Literal[True]:
+    async def add_user_status(self, id: str, title: str) -> Literal[True]:
         """
         Add a user status to the user status data.
 
@@ -209,7 +210,7 @@ class MemorizationSystem:
         await self.save_data()
         return True
 
-    async def edit_user_status(self, id, title, count, score) -> bool:
+    async def edit_user_status(self, id: str, title: str, count: int, score: int) -> bool:
         """
         Edit a user status in the user status data.
 
@@ -232,7 +233,7 @@ class MemorizationSystem:
             return True
         return False
 
-    async def get_user_status(self, id, title):
+    async def get_user_status(self, id: str, title: str) -> StatusData | Literal[False]:
         """
         Get the user status of a user based on its ID and title.
 

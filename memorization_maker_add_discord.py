@@ -342,7 +342,7 @@ class MemorizationDeleteSelect(discord.ui.Select):
         selected_question = self.lists[selected_index]["question"]
         
         memorization = memorization_maker.MemorizationSystem()
-        await memorization.del_mission(interaction.user.id, self.title, selected_question)
+        await memorization.del_mission(str(interaction.user.id), self.title, selected_question)
         embed = discord.Embed(title="問題追加", color=0x00ff00)
         await interaction.response.edit_message(embed=embed, view=MemorizationControlView(self.title))
 
@@ -524,9 +524,9 @@ class MemorizationEditModal(ui.Modal, title="問題編集"):
                 await interaction.response.edit_message(content="選択肢は数字を入力してください", view=None)
                 return
         if self.mode <= 1:
-            await memorization.edit_misson(interaction.user.id, self.title, self.selected_index, self.mode, value)
+            await memorization.edit_misson(str(interaction.user.id), self.title, self.selected_index, self.mode, value)
         elif self.mode == 2:
-            await memorization.edit_misson(interaction.user.id, self.title, self.selected_index, self.mode, value, self.selected_number)
+            await memorization.edit_misson(str(interaction.user.id), self.title, self.selected_index, self.mode, value, self.selected_number)
         await interaction.response.edit_message(content="編集完了", view=None)
 
 
@@ -609,7 +609,7 @@ class MemorizationCog(commands.Cog):
         """
         メモリゼーションの問題を編集するコマンドです。
         """
-        lists = await self.memorization.get_mission_title(interaction.user.id)
+        lists = await self.memorization.get_mission_title(str(interaction.user.id))
         view = discord.ui.View()
         view.add_item(QuestionEditSelect(lists))
         await interaction.response.send_message("編集する問題を選択してください", view=view, ephemeral=True)
