@@ -1,7 +1,6 @@
 import discord
 from discord import ui
-import memorization_maker
-from memorization_maker import MemorizationSystem as MS
+from memorization_maker import MemorizationSystem as MS, ProblemData
 from discord import app_commands
 from discord.ext import commands
 
@@ -217,7 +216,7 @@ class MemorizationPlayMain:
         main_start(interaction: discord.Interaction): Starts the main process of the game.
     """
 
-    def __init__(self, title: str, lists: list[memorization_maker.ProblemData], counts: int, ms: MS):
+    def __init__(self, title: str, lists: list[ProblemData], counts: int, ms: MS):
         self.title = title
         self.lists = lists
         self.counts = counts
@@ -261,7 +260,7 @@ class MakerComanndsCog(commands.Cog):
     """コグクラス: メモリゼーションメーカーのコマンドを管理するクラス"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.ms = memorization_maker.MemorizationSystem()
+        self.ms = MS()
 
     @app_commands.command()
     async def memorization_maker_view(self, interaction:discord.Interaction):
