@@ -24,8 +24,7 @@ class TitleAddModal(ui.Modal, title="タイトル追加"):
         Returns:
         - None
         """
-        title = str(self.title_input.value)
-        
+        title = str(self.title_input.value)        
         embed = discord.Embed(title="問題追加", description=f"現在の選択問題設定個数:4", color=0x00ff00)
         await interaction.response.send_message(embed=embed, ephemeral=True, view=MemorizationControlView(title))
 
@@ -65,9 +64,14 @@ class MemorizationAddModal(ui.Modal,title="問題追加"):
             None
 
         """
-        question, answer = [str(input_item) for input_item in self.inputs]
         memorization = memorization_maker.MemorizationSystem()
-        ch = await memorization.add_mission(str(interaction.user.id), self.title, 0, question,answer)
+        getcode = await memorization.sharecode_true(str(interaction.user.id),self.title)
+        if not getcode:
+            random_number = await memorization.make_sharecode()
+        else:
+            random_number = getcode
+        question, answer = [str(input_item) for input_item in self.inputs]
+        ch = await memorization.add_mission(str(interaction.user.id), self.title,random_number, 0, question,answer)
         if ch:
             await interaction.response.edit_message(view=MemorizationControlView(self.title))
         else:
@@ -234,7 +238,12 @@ class AnswerAddSelect(discord.ui.Select):
                 a += 1
             embed.add_field(name="答え", value=self.answer, inline=False)
             memorizationmaker = memorization_maker.MemorizationSystem()
-            await memorizationmaker.add_mission(str(interaction.user.id), self.title, 1, self.question, self.answer, self.select)
+            getcode = await memorizationmaker.sharecode_true(str(interaction.user.id),self.title)
+            if not getcode:
+                random_number = await memorizationmaker.make_sharecode()
+            else:
+                random_number = getcode
+            await memorizationmaker.add_mission(str(interaction.user.id), self.title, random_number,1, self.question, self.answer, self.select)
             await interaction.response.edit_message(embed=embed, view=None)
 
 
@@ -581,8 +590,10 @@ class MemorizationControlView(discord.ui.View):
 
     @discord.ui.button(label="終了", style=discord.ButtonStyle.red)
     async def close(self, interaction: discord.Interaction, _:discord.ui.Button):
-        await interaction.response.edit_message(content="終了",view=None)
-
+        memorization = memorization_maker.MemorizationSystem()
+        sharecode = await memorization.get_sharecode(str(interaction.user.id),self.title)
+        await interaction.response.edit_message(content=f"終了\nこの問題の共有コード:{sharecode}",view=None)
+        
 class MemorizationCog(commands.Cog):
     def __init__(self, bot):
         """
@@ -615,6 +626,18 @@ class MemorizationCog(commands.Cog):
         await interaction.response.send_message("編集する問題を選択してください", view=view, ephemeral=True)
 
 
+    @app_commands.command()
+    async def sharecode_copy(self, interaction: discord.Interaction,code:int):
+        """
+        共有コードから問題をコピーするコマンドです。
+        """
+        ch = await self.memorization.sharecode_question_copy(str(interaction.user.id),code)
+        if ch:
+            await interaction.response.send_message("コピー完了", ephemeral=True)
+        else:
+            await interaction.response.send_message("コピー失敗", ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(MemorizationCog(bot))
     print("[SystemLog] memorization_maker_add_discord loaded")
+    
