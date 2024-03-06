@@ -3,7 +3,9 @@ from discord import ui
 import memorization_maker
 from discord import app_commands
 from discord.ext import commands
-
+import openpyxl
+import os
+import io
 class TitleAddModal(ui.Modal, title="タイトル追加"):
     """
     A class representing a view for adding a title in the Memorization Maker Discord bot system.
@@ -637,7 +639,27 @@ class MemorizationCog(commands.Cog):
         else:
             await interaction.response.send_message("コピー失敗", ephemeral=True)
 
+    @app_commands.command()
+    async def memorization_add_excel(self, interaction: discord.Interaction,file: discord.Attachment,title:str):
+        """
+        Exselファイルから問題を追加するコマンドです。
+        """
+        if not file:
+            await interaction.response.send_message("ファイルがありません", ephemeral=True)
+            return
+        file_bytes = await file.read()
+        file_like_object = io.BytesIO(file_bytes)
+        workbook = openpyxl.load_workbook(file_like_object)
+        id = str(interaction.user.id)
+        number = await self.memorization.make_sharecode()
+        await interaction.response.defer(thinking=True)
+        ch = await self.memorization.add_mission_into_Excel(id,title,number,workbook)
+        workbook.close()
+        if ch:
+            await interaction.followup.send("追加完了", ephemeral=True)
+        else:
+            await interaction.followup.send("追加失敗", ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(MemorizationCog(bot))
     print("[SystemLog] memorization_maker_add_discord loaded")
-    

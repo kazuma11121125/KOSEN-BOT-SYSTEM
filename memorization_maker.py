@@ -2,7 +2,7 @@ from typing import TypedDict, NotRequired, Literal
 import json
 import random
 from typing import Literal, List
-
+import openpyxl
 
 class ProblemData(TypedDict):
     question: str
@@ -79,6 +79,33 @@ class MemorizationSystem:
         if mode == 1:
             assert isinstance(select, list)
             self.data["memorization"][id][title]["questions"][-1]["select"] = select
+        await self.save_data()
+        return True
+    
+    async def add_mission_into_Excel(self, id: str, title: str, number: int, workbook: openpyxl.Workbook):
+        """
+        Adds a mission into the Excel workbook.
+
+        Args:
+            id (str): The ID of the mission.
+            title (str): The title of the mission.
+            number (int): The share code number.
+            workbook (openpyxl.Workbook): The workbook to add the mission into.
+
+        Returns:
+            bool: True if the mission was successfully added, False otherwise.
+        """
+        id = str(id)
+        await self.load_data()
+        sheet = workbook.active
+        self.data["memorization"].setdefault(id, {})
+        self.data["memorization"][id].setdefault(title, {"questions": [], "sharecode": number})
+        for row in sheet.iter_rows(min_row=1, values_only=True):
+            if not all(row):
+                continue
+            question = row[0]
+            answer = row[1]
+            self.data["memorization"][id][title]["questions"].append({"question": question, "mode": 0, "answer": answer})
         await self.save_data()
         return True
 
@@ -203,17 +230,7 @@ class MemorizationSystem:
         await self.load_data()
         return self.data["memorization"][id][title]["sharecode"]
 
-    async def sharecode_question_copy(self, id: str, sharecode: int) -> bool:
-        """
-        Copy the question from the sharecode to the user's memorization data.
-
-        Parameters:
-        - id (str): The ID of the user.
-        - sharecode (int): The sharecode of the mission.
-
-        Returns:
-        - bool: True if the question is successfully copied, False otherwise.
-        """
+    async def sharecode_question_copy(self, id, sharecode):
         await self.load_data()
         id = str(id)
         if id not in self.data["memorization"]:
@@ -222,7 +239,9 @@ class MemorizationSystem:
             for title in self.data["memorization"][id_]:
                 if self.data["memorization"][id_][title]["sharecode"] == sharecode:
                     self.data["memorization"][id].setdefault(title, {})
-                    self.data["memorization"][id][title]["questions"] = self.data["memorization"][id_][title]["questions"]
+                    self.data["memorization"][id][title] = self.data["memorization"][id_][title]["questions"]
+                    number = await self.make_sharecode()
+                    self.data["memorization"][id][title]["sharecode"] = number
                     await self.save_data()
                     return True
         return False
