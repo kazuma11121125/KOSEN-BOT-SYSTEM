@@ -6,8 +6,17 @@ from discord_schedule_system_class import ed_class
 from homework_class import HomeworkAdd
 
 class WeekDatesCalculator:
+    """
+    This class provides methods to calculate week dates based on the current year and month.
+    """
 
     async def get_current_year_and_month(self):
+        """
+        Get the current year and month.
+
+        Returns:
+            list: A list containing the current year and month.
+        """
         current_date = datetime.now()
         year = " ".join(f"{current_date.year:02}")
         month = " ".join(f"{current_date.month:02}")
@@ -15,6 +24,15 @@ class WeekDatesCalculator:
         return datas
 
     async def get_week_dates(self, week_number):
+        """
+        Get the dates of a specific week in the current month.
+
+        Args:
+            week_number (int): The week number.
+
+        Returns:
+            list: A list of dates in the specified week.
+        """
         current_date = datetime.now()
         cal = calendar.monthcalendar(current_date.year, current_date.month)
         week_dates = []
@@ -28,11 +46,31 @@ class WeekDatesCalculator:
 
     @staticmethod
     async def get_number_of_weeks():
+        """
+        Get the number of weeks in the current month.
+
+        Returns:
+            int: The number of weeks.
+        """
         current_date = datetime.now()
         cal = calendar.monthcalendar(current_date.year, current_date.month)
         return len(cal) - 1
 
 class Discord_Select_Menu_weeks(discord.ui.Select):
+    """
+    A custom Discord select menu for selecting the week number.
+
+    Args:
+        num (int): The total number of weeks to display as options.
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+
+    Attributes:
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+
+    """
+
     def __init__(self, num, comannd_name, classname):
         self.comannd_name = comannd_name
         self.classname = classname
@@ -46,6 +84,24 @@ class Discord_Select_Menu_weeks(discord.ui.Select):
         await interaction.response.edit_message(content="日付を選択してください", view=Discord_Selevt_View(lists, 1, self.comannd_name, self.classname))
 
 class Discord_Select_Menu_days(discord.ui.Select):
+    """
+    A custom Discord select menu for selecting dates.
+
+    Args:
+        lists (list): The list of dates to be displayed as options.
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+
+    Attributes:
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+        num (str): The selected date.
+
+    Methods:
+        callback(interaction): The callback method called when a date is selected.
+
+    """
+
     def __init__(self, lists, comannd_name, classname):
         self.comannd_name = comannd_name
         self.classname = classname
@@ -65,6 +121,22 @@ class Discord_Select_Menu_days(discord.ui.Select):
         await main_Class_days.change_return(self.comannd_name, y_m_d, interaction, self.classname)
 
 class Discord_Selevt_View(discord.ui.View):
+    """
+    A custom view class for Discord selection menus.
+
+    Args:
+        datas (list): The data to be displayed in the selection menu.
+        mode (int): The mode of the view. 0 for weeks, 1 for days.
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+
+    Attributes:
+        datas (list): The data to be displayed in the selection menu.
+        mode (int): The mode of the view. 0 for weeks, 1 for days.
+        comannd_name (str): The name of the command.
+        classname (str): The name of the class.
+    """
+
     def __init__(self, datas, mode, comannd_name, classname):
         super().__init__()
         if mode == 0:
@@ -73,7 +145,12 @@ class Discord_Selevt_View(discord.ui.View):
             self.add_item(Discord_Select_Menu_days(datas, comannd_name, classname))  # 日付 list
 
 class main_Class_days:
+    """
+    A class that handles various operations related to class schedules and homework.
 
+    Methods:
+    - change_return: Handles different command names and performs corresponding actions.
+    """
     @staticmethod
     async def change_return(comannd_name, y_m_d, interaction: discord.Interaction, classname):
         if comannd_name == "edit_schedule":

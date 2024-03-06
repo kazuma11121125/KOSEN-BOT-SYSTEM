@@ -3,6 +3,19 @@ from discord import ui
 from student_schedule_manager import ClassScheduleManager,ClassuserSystem
 from homework_class import Homework_view
 class Questionnaire(ui.Modal, title="教科入力"):
+    """
+    A class representing a questionnaire for inputting class schedules.
+
+    Attributes:
+    - mode (str): The mode of the questionnaire.
+    - class_name (str): The name of the class.
+    - schedule_manager (ClassScheduleManager): An instance of the ClassScheduleManager class.
+    - inputs (list): A list of TextInput objects representing the input fields for each class schedule.
+
+    Methods:
+    - __init__(self, mode, class_name): Initializes the Questionnaire object.
+    - on_submit(self, interaction): Handles the submission of the questionnaire.
+    """
     def __init__(self, mode, class_name):
         super().__init__()
         self.mode = mode
@@ -39,7 +52,7 @@ class Questionnaire(ui.Modal, title="教科入力"):
         for cont, schedule_item in enumerate(base["Basic"][self.mode], start=1):
             embed.add_field(name=f"{cont}限目", value=schedule_item, inline=False)
 
-        await interaction.response.send_message(embed=embed,ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class DiscordButtonModel(discord.ui.View):
     def __init__(self, class_name):
@@ -70,6 +83,16 @@ class DiscordButtonModel(discord.ui.View):
         await self.switching(button, interaction, "Friday")
 
 class ed_class(ui.Modal,title="授業変更"):
+    """
+    A class representing a modal for changing classes.
+
+    Attributes:
+    - classname (str): The name of the class.
+    - y_m_d (str): The date of the class in the format 'YYYY-MM-DD'.
+    - period (ui.TextInput): The input field for the class period.
+    - value (ui.TextInput): The input field for the class name.
+    """
+
     def __init__(self,classname,y_m_d):
         super().__init__()
         self.classname = classname
@@ -97,22 +120,43 @@ class ed_class(ui.Modal,title="授業変更"):
             else:
                 await interaction.response.send_message(f"ん？？？\nそんな授業数ないお{period}",ephemeral=True)
         else:
-            await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)    
+            await interaction.response.send_message("ユーザー情報がみつかりませんでした。",ephemeral=True)
         
 class DiscordButtonModel_disbord(discord.ui.View):
+    """
+    DiscordButtonModel_disbord is a class that represents a view for Discord buttons in a Discord bot.
+    It provides functionality for handling different button interactions and switching between different modes.
+
+    Attributes:
+    - user_info: An instance of the ClassuserSystem class.
+    - homework: An instance of the Homework_view class.
+
+    Methods:
+    - __init__: Initializes the DiscordButtonModel_disbord class.
+    - switching: Handles the switching logic based on the button interaction and mode.
+    - mon: Button handler for "基本日程設定" button.
+    - change: Button handler for "授業変更適用" button.
+    - class_view: Button handler for "授業確認" button.
+    - homework_add: Button handler for "宿題追加" button.
+    - homework_view: Button handler for "宿題確認" button.
+    """
     def __init__(self):
         super().__init__(timeout=None)  # Set a longer timeout or None for no timeout
         self.user_info = ClassuserSystem()
         self.homework = Homework_view()
-    # Define a simple View that persists between bot restarts
-    # In order for a view to persist between restarts it needs to meet the following conditions:
-    # 1) The timeout of the View has to be set to None
-    # 2) Every item in the View has to have a custom_id set
-    # It is recommended that the custom_id be sufficiently unique to
-    # prevent conflicts with other buttons the bot sends.
-    # For this example the custom_id is prefixed with the name of the bot.
-    # Note that custom_ids can only be up to 100 characters long.
+
     async def switching(self, interaction: discord.Interaction, button, mode):
+        """
+        Handles the switching logic based on the button interaction and mode.
+
+        Parameters:
+        - interaction: The discord.Interaction object representing the button interaction.
+        - button: The button object.
+        - mode: The mode indicating the action to be performed.
+
+        Returns:
+        None
+        """
         from schedule_specification import WeekDatesCalculator ,Discord_Selevt_View
         classname = await self.user_info.check_user(interaction.user.id)
         num = await WeekDatesCalculator.get_number_of_weeks()
@@ -134,21 +178,71 @@ class DiscordButtonModel_disbord(discord.ui.View):
 
     @discord.ui.button(label="基本日程設定",style=discord.ButtonStyle.blurple,custom_id="Base")
     async def mon(self, button, interaction):
+        """
+        Button handler for "基本日程設定" button.
+
+        Parameters:
+        - button: The button object.
+        - interaction: The discord.Interaction object representing the button interaction.
+
+        Returns:
+        None
+        """
         await self.switching(button, interaction, "Base")
 
     @discord.ui.button(label="授業変更適用",style=discord.ButtonStyle.red,custom_id="change")
     async def change(self,button,interaction):
+        """
+        Button handler for "授業変更適用" button.
+
+        Parameters:
+        - button: The button object.
+        - interaction: The discord.Interaction object representing the button interaction.
+
+        Returns:
+        None
+        """
         await self.switching(button,interaction,"change")
         
     @discord.ui.button(label="授業確認",style=discord.ButtonStyle.red,custom_id="classview")
     async def class_view(self,button,interaction):
+        """
+        Button handler for "授業確認" button.
+
+        Parameters:
+        - button: The button object.
+        - interaction: The discord.Interaction object representing the button interaction.
+
+        Returns:
+        None
+        """
         await self.switching(button,interaction,"classview")
         
     @discord.ui.button(label="宿題追加",style=discord.ButtonStyle.green,custom_id="homework_add")
     async def homework_add(self,button,interaction):
+        """
+        Button handler for "宿題追加" button.
+
+        Parameters:
+        - button: The button object.
+        - interaction: The discord.Interaction object representing the button interaction.
+
+        Returns:
+        None
+        """
         await self.switching(button,interaction,"homework_add")
         
     @discord.ui.button(label="宿題確認",style=discord.ButtonStyle.green,custom_id="homework_view")
     async def homework_view(self,button,interaction):
+        """
+        Button handler for "宿題確認" button.
+
+        Parameters:
+        - button: The button object.
+        - interaction: The discord.Interaction object representing the button interaction.
+
+        Returns:
+        None
+        """
         await self.switching(button,interaction,"homework_view")
         
