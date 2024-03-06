@@ -274,6 +274,18 @@ class MakerComanndsCog(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
+    @app_commands.command()
+    async def anki_help(self, interaction:discord.Interaction):
+        """ヘルプコマンド"""
+        embed = discord.Embed(title="暗記機能help ver0.0.1 Beta",color=0x00ff00)
+        embed.add_field(name="memorization_maker_view",value="問題回答スタート",inline=False)
+        embed.add_field(name="memorization_add",value="問題追加",inline=False)
+        embed.add_field(name="memorization_edit",value="問題編集",inline=False)
+        embed.add_field(name="delete_title",value="問題削除",inline=False)
+        embed.add_field(name="memorization_add_excel",value="エクセルから問題を追加 (Aに問題 Bに答え)",inline=False)
+        embed.add_field(name="memorization_sharecode",value="問題を共有するための共有コードを取得します。",inline=False)
+        embed.add_field(name="sharecode_copy",value="共有コードから問題を取得し、保存します。",inline=False)
+        await interaction.response.send_message(embed=embed,ephemeral=True)
 async def setup(bot):
     await bot.add_cog(MakerComanndsCog(bot))
     print("[SystemLog] memorization_maker_view loaded")

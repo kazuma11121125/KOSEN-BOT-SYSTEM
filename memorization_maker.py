@@ -55,6 +55,26 @@ class MemorizationSystem:
         except FileNotFoundError:
             self.data = {"memorization": {}, "user_status": {}}
 
+    async def del_mission_title(self, id: str, title: str):
+        """
+        Delete a mission title from the memorization data.
+
+        Args:
+            id (str): The User ID.
+            title (str): The title of the mission.
+
+        Returns:
+            bool: True if the title is deleted successfully, False otherwise.
+        """
+        await self.load_data()
+        if id in self.data["memorization"]:
+            if title in self.data["memorization"][id]:
+                self.data["memorization"][id].pop(title)
+                await self.save_data()
+                return True
+        return False
+
+
     async def add_mission(self, id: str, title: str,random_number:int,mode: int, mission: str, answer: str, select: list | None = None, ):
         """
         Add a mission to the memorization data.
@@ -197,7 +217,21 @@ class MemorizationSystem:
                         continue
             return random_number
 
-        
+    async def get_sharecode(self, id: str, title: str) -> Literal[False] | int:
+        """
+        Get the sharecode of a mission.
+
+        Args:
+            id (str): The ID of the mission.
+            title (str): The title of the mission.
+
+        Returns:
+            int: The sharecode of the mission if it exists, False otherwise.
+        """
+        await self.load_data()
+        if id in self.data["memorization"] and title in self.data["memorization"][id]:
+            return self.data["memorization"][id][title]["sharecode"]
+        return False
 
     async def get_mission_sharecode(self, code) -> Literal[False] | list[ProblemData]:
         """
@@ -216,32 +250,20 @@ class MemorizationSystem:
                     return self.data["memorization"][id][title]["questions"]
         return False 
     
-    async def get_sharecode(self, id: str, title: str) -> int:
-        """
-        Get the sharecode of a mission based on its ID and title.
-
-        Parameters:
-        - id (str): The ID of the mission.
-        - title (str): The title of the mission.
-
-        Returns:
-        - content (int): The sharecode of the mission if it exists, False otherwise.
-        """
-        await self.load_data()
-        return self.data["memorization"][id][title]["sharecode"]
-
     async def sharecode_question_copy(self, id, sharecode):
         await self.load_data()
         id = str(id)
-        if id not in self.data["memorization"]:
-            self.data["memorization"][id] = {}
-        for id_ in self.data["memorization"]:
-            for title in self.data["memorization"][id_]:
-                if self.data["memorization"][id_][title]["sharecode"] == sharecode:
-                    self.data["memorization"][id].setdefault(title, {})
-                    self.data["memorization"][id][title] = self.data["memorization"][id_][title]["questions"]
+        self.data["memorization"].setdefault(id, {})
+        await self.save_data()#消したらなぜか動かないww
+        await self.load_data()
+        tmp = {}
+        for bef_id in self.data["memorization"]:
+            for title in self.data["memorization"][bef_id]:
+                if self.data["memorization"][bef_id][title].get("sharecode") == sharecode:
+                    tmp["questions"] = self.data["memorization"][bef_id][title]["questions"]
                     number = await self.make_sharecode()
-                    self.data["memorization"][id][title]["sharecode"] = number
+                    tmp["sharecode"] = number
+                    self.data["memorization"][id][title] = tmp
                     await self.save_data()
                     return True
         return False
